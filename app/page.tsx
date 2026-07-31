@@ -63,7 +63,7 @@ export default async function Home() {
           doctorName={doctor?.name || s.siteName}
           crm={doctor?.crm || ""}
           rqe={doctor?.rqe || ""}
-          photoUrl={mediaUrl(doctor?.photoId)}
+          photoUrl={mediaUrl(s.heroImageId) || mediaUrl(doctor?.photoId)}
           whatsappHref={waHref}
         />
 

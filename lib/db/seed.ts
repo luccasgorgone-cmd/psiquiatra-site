@@ -1,4 +1,6 @@
 import "dotenv/config";
+import { readFileSync } from "fs";
+import { join } from "path";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import bcrypt from "bcryptjs";
@@ -61,6 +63,17 @@ async function insertMedia(svg: string, alt: string) {
   return row.id;
 }
 
+// Lê uma imagem otimizada da pasta lib/db/assets e grava no banco (base64)
+async function insertImage(file: string, alt: string) {
+  const buf = readFileSync(join(process.cwd(), "lib", "db", "assets", file));
+  const mime = file.endsWith(".png") ? "image/png" : "image/jpeg";
+  const [row] = await db
+    .insert(schema.mediaAssets)
+    .values({ mime, data: buf.toString("base64"), alt })
+    .returning();
+  return row.id;
+}
+
 async function main() {
   console.log("Semeando banco...");
 
@@ -71,12 +84,13 @@ async function main() {
   await db.delete(schema.availabilityRules);
   await db.delete(schema.credentials);
 
-  // Mídia
+  // Mídia — logo (SVG) + fotos reais do Dr. Guilherme e do consultório
   const logoId = await insertMedia(logoSVG(), "Logo do consultório");
-  const photoId = await insertMedia(portraitSVG(), "Retrato do médico");
-  const clinic1 = await insertMedia(clinicSVG("Recepção", 0), "Recepção da clínica");
-  const clinic2 = await insertMedia(clinicSVG("Consultório", 1), "Consultório");
-  const clinic3 = await insertMedia(clinicSVG("Sala de espera", 2), "Sala de espera");
+  const heroImgId = await insertImage("hero.jpg", "Dr. Guilherme Cazerta Delnery");
+  const photoId = await insertImage("about.jpg", "Dr. Guilherme Cazerta Delnery");
+  const clinic1 = await insertImage("clinic-1.jpg", "Fachada — Instituto Del Nery");
+  const clinic2 = await insertImage("clinic-2.jpg", "Consultório");
+  const clinic3 = await insertImage("clinic-3.jpg", "Sala de atendimento");
 
   // Configurações do site
   const settingsValues = {
@@ -84,6 +98,7 @@ async function main() {
     siteName: "Dr. Guilherme Cazerta Delnery",
     tagline: "Psiquiatria • Formação internacional e cuidado humano",
     logoId,
+    heroImageId: heroImgId,
     brandRgb: BRAND,
     brandSoftRgb: "120 140 130",
     brandDeepRgb: "40 54 48",
@@ -108,9 +123,9 @@ async function main() {
     whatsapp: "5599999999999",
     phone: "(00) 0000-0000",
     email: "contato@drguilhermedelnery.com.br",
-    addressLine: "Av. Exemplo, 1000 — Sala 101, Centro, Jundiaí — SP",
+    addressLine: "R. Cussy de Almeida Júnior, 72 — Jardim Sumaré, Araçatuba — SP, 16015-070",
     mapsEmbed:
-      "https://www.google.com/maps?q=Jundiaí,+São+Paulo&output=embed",
+      "https://www.google.com/maps?q=Instituto+Del+Nery,+R.+Cussy+de+Almeida+J%C3%BAnior,+72,+Ara%C3%A7atuba+-+SP,+16015-070&output=embed",
     metaTitle: "Dr. Guilherme Cazerta Delnery — Médico Psiquiatra",
     metaDescription:
       "Psiquiatria com formação internacional (University of Iowa). Atendimento humanizado, presencial e online. Agende sua consulta.",
@@ -141,30 +156,28 @@ async function main() {
     .onConflictDoUpdate({ target: schema.doctor.id, set: doctorValues });
 
   // Clínica
+  const clinicValues = {
+    id: "main",
+    title: "Um espaço pensado para o seu bem-estar",
+    description:
+      "Atendimento no Instituto Del Nery, em Araçatuba — um ambiente acolhedor, reservado e confortável, pensado para que você se sinta seguro desde a chegada. Localização de fácil acesso e estrutura completa para um atendimento tranquilo.",
+    amenities: [
+      "Localização de fácil acesso",
+      "Ambiente reservado e silencioso",
+      "Atendimento presencial e online",
+      "Sigilo e conforto em cada etapa",
+    ],
+    hours: "Segunda a sexta, das 9h às 18h",
+  };
   await db
     .insert(schema.clinicInfo)
-    .values({
-      id: "main",
-      title: "Um espaço pensado para o seu bem-estar",
-      description:
-        "Ambiente acolhedor, reservado e confortável, projetado para que você se sinta seguro desde a chegada. Localização central, de fácil acesso, com toda a estrutura para um atendimento tranquilo.",
-      amenities: [
-        "Estacionamento no local",
-        "Acesso por elevador",
-        "Ambiente reservado e silencioso",
-        "Atendimento presencial e online",
-      ],
-      hours: "Segunda a sexta, das 9h às 18h",
-    })
-    .onConflictDoUpdate({
-      target: schema.clinicInfo.id,
-      set: { updatedAt: new Date() },
-    });
+    .values(clinicValues)
+    .onConflictDoUpdate({ target: schema.clinicInfo.id, set: clinicValues });
 
   await db.insert(schema.clinicPhotos).values([
-    { mediaId: clinic1, caption: "Recepção", order: 0 },
+    { mediaId: clinic1, caption: "Instituto Del Nery — Araçatuba", order: 0 },
     { mediaId: clinic2, caption: "Consultório", order: 1 },
-    { mediaId: clinic3, caption: "Sala de espera", order: 2 },
+    { mediaId: clinic3, caption: "Sala de atendimento", order: 2 },
   ]);
 
   // Especialidades
@@ -273,9 +286,9 @@ async function main() {
     .onConflictDoUpdate({ target: schema.agentConfig.id, set: { updatedAt: new Date() } });
 
   // Admin inicial
-  const email = process.env.ADMIN_EMAIL || "admin@clinica.com.br";
-  const pass = process.env.ADMIN_PASSWORD || "Admin123!";
-  const name = process.env.ADMIN_NAME || "Administrador";
+  const email = (process.env.ADMIN_EMAIL || "GDelnery123").toLowerCase();
+  const pass = process.env.ADMIN_PASSWORD || "GDenery321";
+  const name = process.env.ADMIN_NAME || "Dr. Guilherme Cazerta Delnery";
   const hash = await bcrypt.hash(pass, 10);
   await db
     .insert(schema.adminUsers)
