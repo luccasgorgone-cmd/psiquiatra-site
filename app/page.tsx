@@ -37,7 +37,10 @@ export default async function Home() {
     getCredentials(),
   ]);
 
-  const s = settings!;
+  // Banco ainda não configurado/populado: mostra aviso elegante em vez de erro.
+  if (!settings) return <SetupNotice />;
+
+  const s = settings;
   const nav = (s.navItems as { label: string; href: string }[]) || [];
   const waHref = s.whatsapp
     ? whatsappLink(s.whatsapp, "Olá! Gostaria de agendar uma consulta.")
@@ -138,5 +141,20 @@ export default async function Home() {
         />
       )}
     </>
+  );
+}
+
+function SetupNotice() {
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-ivory px-6">
+      <div className="max-w-md text-center">
+        <div className="mx-auto mb-6 h-12 w-12 animate-pulse rounded-2xl bg-brand/15" />
+        <h1 className="font-serif text-2xl text-ink">Site em configuração</h1>
+        <p className="mt-3 text-muted">
+          Estamos preparando tudo. Assim que o banco de dados for conectado e
+          populado, o conteúdo aparecerá aqui automaticamente.
+        </p>
+      </div>
+    </main>
   );
 }

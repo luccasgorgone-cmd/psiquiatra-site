@@ -18,7 +18,19 @@ export default async function AgendarPage() {
     getDoctor(),
   ]);
 
-  const s = settings!;
+  if (!settings) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-ivory px-6 text-center">
+        <div className="max-w-md">
+          <h1 className="font-serif text-2xl text-ink">Agendamento em configuração</h1>
+          <p className="mt-3 text-muted">Volte em instantes — estamos preparando a agenda.</p>
+          <Link href="/" className="btn-ghost mt-6">Voltar ao início</Link>
+        </div>
+      </div>
+    );
+  }
+
+  const s = settings;
   const logo = mediaUrl(s.logoId);
 
   return (

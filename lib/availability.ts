@@ -59,21 +59,21 @@ export async function getAvailableDays(opts?: {
   const now = new Date();
   const minStart = new Date(now.getTime() + leadHours * 3600 * 1000);
 
-  const rules = await db
-    .select()
-    .from(availabilityRules)
-    .where(eq(availabilityRules.active, true));
-  if (rules.length === 0) return [];
-
-  const blocks = await db
-    .select()
-    .from(blockedSlots)
-    .where(gte(blockedSlots.end, now));
-
-  const booked = await db
-    .select({ start: appointments.start, end: appointments.end })
-    .from(appointments)
-    .where(and(gte(appointments.start, now), ne(appointments.status, "CANCELADO")));
+  let rules: (typeof availabilityRules.$inferSelect)[] = [];
+  let blocks: { start: Date; end: Date }[] = [];
+  let booked: { start: Date; end: Date }[] = [];
+  try {
+    rules = await db.select().from(availabilityRules).where(eq(availabilityRules.active, true));
+    if (rules.length === 0) return [];
+    blocks = await db.select().from(blockedSlots).where(gte(blockedSlots.end, now));
+    booked = await db
+      .select({ start: appointments.start, end: appointments.end })
+      .from(appointments)
+      .where(and(gte(appointments.start, now), ne(appointments.status, "CANCELADO")));
+  } catch (e) {
+    console.error("[availability] erro de banco:", (e as Error).message);
+    return [];
+  }
 
   const overlaps = (s: Date, e: Date, xs: { start: Date; end: Date }[]) =>
     xs.some((x) => s < new Date(x.end) && e > new Date(x.start));
