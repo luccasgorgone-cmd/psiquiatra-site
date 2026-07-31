@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand: 70 90 82;
+  --brand-soft: 120 140 130;
+  --brand-deep: 40 54 48;
+  --font-serif: "Fraunces Variable", Georgia, serif;
+  --font-sans: "Inter Variable", system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    @apply bg-ivory text-ink font-sans;
+    font-feature-settings: "ss01", "cv01";
+  }
+  ::selection {
+    background: rgb(var(--brand) / 0.18);
+  }
+  h1, h2, h3, h4 {
+    @apply font-serif tracking-tightest;
+  }
+  /* Scrollbar sutil */
+  ::-webkit-scrollbar { width: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: rgb(var(--brand) / 0.25);
+    border-radius: 999px;
+    border: 3px solid theme("colors.ivory");
+  }
+}
+
+@layer components {
+  .container-x {
+    @apply mx-auto w-full max-w-6xl px-6 sm:px-8;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-medium transition-all duration-300 ease-smooth;
+  }
+  .btn-primary {
+    @apply btn bg-brand text-ivory hover:bg-brand-deep hover:shadow-lift;
+  }
+  .btn-ghost {
+    @apply btn border border-ink/15 text-ink hover:border-ink/40 hover:bg-ink/[0.03];
+  }
+  .kicker {
+    @apply inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-brand;
+  }
+  .eyebrow-line::before {
+    content: "";
+    @apply mr-3 inline-block h-px w-8 bg-brand align-middle;
+  }
+  .card {
+    @apply rounded-xl2 border border-ink/[0.07] bg-white/60 backdrop-blur-sm transition-all duration-500 ease-smooth;
+  }
+  .social-btn {
+    @apply inline-flex h-11 w-11 items-center justify-center rounded-full border border-ink/10 text-graphite transition-all duration-300 hover:border-brand hover:bg-brand hover:text-ivory;
+  }
+  .fld {
+    @apply w-full rounded-lg border border-ink/12 bg-white/70 px-4 py-2.5 text-sm text-ink outline-none transition-colors placeholder:text-muted/60 focus:border-brand;
+  }
+}
+
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+  .noise {
+    background-image: radial-gradient(rgb(var(--brand) / 0.06) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+  .mask-fade-b {
+    -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+    mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+  }
+}
+
+/* Respeita quem prefere menos movimento */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

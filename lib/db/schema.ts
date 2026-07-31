@@ -1,0 +1,193 @@
+import { randomUUID } from "crypto";
+import {
+  pgTable,
+  text,
+  integer,
+  boolean,
+  timestamp,
+  json,
+  pgEnum,
+  index,
+} from "drizzle-orm/pg-core";
+
+const id = () => text("id").primaryKey().$defaultFn(() => randomUUID());
+
+// ── Mídia (imagens em base64 no Postgres) ─────────────────────
+export const mediaAssets = pgTable("media_assets", {
+  id: id(),
+  mime: text("mime").notNull(),
+  data: text("data").notNull(), // base64
+  alt: text("alt").notNull().default(""),
+  width: integer("width"),
+  height: integer("height"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// ── Configurações globais (singleton id="main") ───────────────
+export const siteSettings = pgTable("site_settings", {
+  id: text("id").primaryKey().default("main"),
+  siteName: text("site_name").notNull().default("Clínica"),
+  tagline: text("tagline").notNull().default(""),
+
+  logoId: text("logo_id"),
+  brandRgb: text("brand_rgb").notNull().default("70 90 82"),
+  brandSoftRgb: text("brand_soft_rgb").notNull().default("120 140 130"),
+  brandDeepRgb: text("brand_deep_rgb").notNull().default("40 54 48"),
+
+  heroImageId: text("hero_image_id"),
+  heroKicker: text("hero_kicker").notNull().default("Psiquiatria"),
+  heroTitle: text("hero_title").notNull().default("Cuide sempre da sua saúde mental"),
+  heroSubtitle: text("hero_subtitle").notNull().default(""),
+
+  navItems: json("nav_items").notNull().$type<{ label: string; href: string }[]>().default([]),
+
+  footerText: text("footer_text").notNull().default(""),
+  footerNote: text("footer_note").notNull().default(""),
+
+  instagram: text("instagram").notNull().default(""),
+  facebook: text("facebook").notNull().default(""),
+  whatsapp: text("whatsapp").notNull().default(""),
+  phone: text("phone").notNull().default(""),
+  email: text("email").notNull().default(""),
+
+  addressLine: text("address_line").notNull().default(""),
+  mapsEmbed: text("maps_embed").notNull().default(""),
+
+  metaTitle: text("meta_title").notNull().default(""),
+  metaDescription: text("meta_description").notNull().default(""),
+  ogImageId: text("og_image_id"),
+
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// ── Médica ────────────────────────────────────────────────────
+export const doctor = pgTable("doctor", {
+  id: text("id").primaryKey().default("main"),
+  name: text("name").notNull().default("Dra. Nome Sobrenome"),
+  crm: text("crm").notNull().default("CRM/UF 000000"),
+  rqe: text("rqe").notNull().default("RQE 00000"),
+  title: text("title").notNull().default("Médica Psiquiatra"),
+  bioLong: text("bio_long").notNull().default(""),
+  approach: text("approach").notNull().default(""),
+  formation: text("formation").notNull().default(""),
+  photoId: text("photo_id"),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// ── Especialidades ────────────────────────────────────────────
+export const specialties = pgTable("specialties", {
+  id: id(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  icon: text("icon").notNull().default("brain"),
+  order: integer("order").notNull().default(0),
+  active: boolean("active").notNull().default(true),
+});
+
+// ── Clínica ───────────────────────────────────────────────────
+export const clinicInfo = pgTable("clinic_info", {
+  id: text("id").primaryKey().default("main"),
+  title: text("title").notNull().default("A Clínica"),
+  description: text("description").notNull().default(""),
+  amenities: json("amenities").notNull().$type<string[]>().default([]),
+  hours: text("hours").notNull().default("Segunda a sexta, 9h às 18h"),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const clinicPhotos = pgTable("clinic_photos", {
+  id: id(),
+  mediaId: text("media_id").notNull(),
+  caption: text("caption").notNull().default(""),
+  order: integer("order").notNull().default(0),
+});
+
+// ── "Quando buscar ajuda" ─────────────────────────────────────
+export const helpSigns = pgTable("help_signs", {
+  id: id(),
+  label: text("label").notNull(),
+  order: integer("order").notNull().default(0),
+  active: boolean("active").notNull().default(true),
+});
+
+// ── Disponibilidade ───────────────────────────────────────────
+export const availabilityRules = pgTable("availability_rules", {
+  id: id(),
+  weekday: integer("weekday").notNull(), // 0=dom ... 6=sáb
+  startTime: text("start_time").notNull(), // "09:00"
+  endTime: text("end_time").notNull(), // "18:00"
+  slotMin: integer("slot_min").notNull().default(50),
+  active: boolean("active").notNull().default(true),
+});
+
+export const blockedSlots = pgTable("blocked_slots", {
+  id: id(),
+  start: timestamp("start").notNull(),
+  end: timestamp("end").notNull(),
+  reason: text("reason").notNull().default(""),
+});
+
+// ── Consultas ─────────────────────────────────────────────────
+export const appointmentStatus = pgEnum("appointment_status", [
+  "PENDENTE",
+  "CONFIRMADO",
+  "CANCELADO",
+  "CONCLUIDO",
+]);
+export const appointmentChannel = pgEnum("appointment_channel", ["SITE", "WHATSAPP"]);
+
+export const appointments = pgTable(
+  "appointments",
+  {
+    id: id(),
+    name: text("name").notNull(),
+    phone: text("phone").notNull(),
+    email: text("email").notNull().default(""),
+    start: timestamp("start").notNull(),
+    end: timestamp("end").notNull(),
+    status: appointmentStatus("status").notNull().default("PENDENTE"),
+    channel: appointmentChannel("channel").notNull().default("SITE"),
+    mode: text("mode").notNull().default("presencial"),
+    notes: text("notes").notNull().default(""),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => ({ startIdx: index("appointments_start_idx").on(t.start) })
+);
+
+// ── Admin ─────────────────────────────────────────────────────
+export const adminUsers = pgTable("admin_users", {
+  id: id(),
+  email: text("email").notNull().unique(),
+  name: text("name").notNull().default(""),
+  password: text("password").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// ── Agente ────────────────────────────────────────────────────
+export const agentConfig = pgTable("agent_config", {
+  id: text("id").primaryKey().default("main"),
+  enabled: boolean("enabled").notNull().default(true),
+  channelSite: boolean("channel_site").notNull().default(true),
+  channelWhats: boolean("channel_whats").notNull().default(false),
+  greeting: text("greeting").notNull().default("Olá! 👋 Como posso ajudar você hoje?"),
+  fallback: text("fallback").notNull().default(""),
+  faq: json("faq").notNull().$type<{ q: string; a: string; keywords: string[] }[]>().default([]),
+  aiEnabled: boolean("ai_enabled").notNull().default(false),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const agentMessages = pgTable("agent_messages", {
+  id: id(),
+  channel: text("channel").notNull(),
+  from: text("from").notNull().default(""),
+  text: text("text").notNull(),
+  reply: text("reply").notNull().default(""),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// tipos convenientes
+export type SiteSettings = typeof siteSettings.$inferSelect;
+export type Doctor = typeof doctor.$inferSelect;
+export type Specialty = typeof specialties.$inferSelect;
+export type ClinicInfoRow = typeof clinicInfo.$inferSelect;
+export type Appointment = typeof appointments.$inferSelect;
+export type AgentConfigRow = typeof agentConfig.$inferSelect;
