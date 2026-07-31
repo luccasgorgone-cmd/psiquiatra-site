@@ -1,8 +1,15 @@
 import type { Metadata } from "next";
 import "@fontsource-variable/fraunces";
 import "@fontsource-variable/inter";
+import "@fontsource-variable/playfair-display";
+import "@fontsource-variable/cormorant";
+import "@fontsource-variable/lora";
+import "@fontsource-variable/manrope";
+import "@fontsource-variable/work-sans";
+import "@fontsource-variable/dm-sans";
 import "./globals.css";
 import { getSettings, mediaUrl } from "@/lib/queries";
+import { headingStack, bodyStack } from "@/lib/fonts";
 
 export async function generateMetadata(): Promise<Metadata> {
   const s = await getSettings();
@@ -38,6 +45,8 @@ export default async function RootLayout({
     "--brand": s?.brandRgb || "70 90 82",
     "--brand-soft": s?.brandSoftRgb || "120 140 130",
     "--brand-deep": s?.brandDeepRgb || "40 54 48",
+    "--font-serif": headingStack(s?.fontHeading),
+    "--font-sans": bodyStack(s?.fontBody),
   } as React.CSSProperties;
 
   return (

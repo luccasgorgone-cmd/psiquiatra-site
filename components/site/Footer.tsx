@@ -1,5 +1,6 @@
 import { Instagram, Facebook, MessageCircle, CalendarCheck } from "lucide-react";
 import { whatsappLink } from "@/lib/utils";
+import RichText from "@/components/RichText";
 
 type NavItem = { label: string; href: string };
 
@@ -44,7 +45,7 @@ export default function Footer({
             ) : (
               <span className="font-serif text-xl">{siteName}</span>
             )}
-            <p className="mt-5 max-w-sm text-sm leading-relaxed text-muted">{footerText}</p>
+            <RichText text={footerText} className="mt-5 max-w-sm text-sm leading-relaxed text-muted" />
             <div className="mt-6 flex gap-3">
               {instagram && (
                 <a href={instagram} target="_blank" rel="noopener" aria-label="Instagram" className="social-btn">

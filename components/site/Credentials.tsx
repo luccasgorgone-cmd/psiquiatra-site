@@ -1,4 +1,5 @@
 import Reveal from "@/components/Reveal";
+import RichText from "@/components/RichText";
 import {
   GraduationCap,
   Globe2,
@@ -80,7 +81,9 @@ export default function Credentials({ items }: { items: Cred[] }) {
                     )}
                     <h3 className="mt-1 font-serif text-xl text-ink">{c.title}</h3>
                     <p className="mt-0.5 text-sm font-medium text-graphite">{c.org}</p>
-                    {c.detail && <p className="mt-2 text-sm leading-relaxed text-muted">{c.detail}</p>}
+                    {c.detail && (
+                      <RichText text={c.detail} className="mt-2 text-sm leading-relaxed text-muted" />
+                    )}
                   </div>
                 </Reveal>
               );

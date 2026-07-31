@@ -34,6 +34,10 @@ export const siteSettings = pgTable("site_settings", {
   brandSoftRgb: text("brand_soft_rgb").notNull().default("120 140 130"),
   brandDeepRgb: text("brand_deep_rgb").notNull().default("40 54 48"),
 
+  // Tipografia (chaves das fontes escolhidas no painel)
+  fontHeading: text("font_heading").notNull().default("fraunces"),
+  fontBody: text("font_body").notNull().default("inter"),
+
   heroImageId: text("hero_image_id"),
   heroKicker: text("hero_kicker").notNull().default("Psiquiatria"),
   heroTitle: text("hero_title").notNull().default("Cuide sempre da sua saúde mental"),

@@ -25,7 +25,15 @@ export default async function ConteudoPage() {
 
   return (
     <div>
-      <PageHeader title="Conteúdo do site" subtitle="Textos da página inicial, da médica e da clínica" />
+      <PageHeader title="Conteúdo do site" subtitle="Textos da página inicial, do médico e da clínica" />
+
+      <div className="mb-6 rounded-xl2 border border-brand/20 bg-brand/[0.05] p-4 text-sm text-graphite">
+        <strong className="text-ink">Dica de formatação:</strong> deixe uma{" "}
+        <strong className="text-ink">linha em branco</strong> para separar parágrafos, use{" "}
+        <code className="rounded bg-ink/10 px-1">**negrito**</code> para{" "}
+        <strong>negrito</strong> e <code className="rounded bg-ink/10 px-1">*itálico*</code> para{" "}
+        <em>itálico</em>.
+      </div>
 
       <Card title="Topo / Hero e SEO" description="A primeira dobra do site e os dados de busca">
         <ActionForm action={saveGeneral}>

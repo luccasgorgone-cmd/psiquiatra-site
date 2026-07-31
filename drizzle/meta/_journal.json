@@ -22,6 +22,13 @@
       "when": 1785461679843,
       "tag": "0002_fixed_doctor_octopus",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1785509353127,
+      "tag": "0003_bent_cardiac",
+      "breakpoints": true
     }
   ]
 }

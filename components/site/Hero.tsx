@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { CalendarCheck, MessageCircle, ShieldCheck } from "lucide-react";
+import RichText from "@/components/RichText";
 
 export default function Hero({
   kicker,
@@ -66,14 +67,14 @@ export default function Hero({
             {title}
           </motion.h1>
 
-          <motion.p
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.15, ease }}
-            className="mt-6 max-w-xl text-lg leading-relaxed text-muted"
+            className="mt-6 max-w-xl"
           >
-            {subtitle}
-          </motion.p>
+            <RichText text={subtitle} className="text-lg leading-relaxed text-muted" />
+          </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}

@@ -80,6 +80,17 @@ export async function saveBranding(_p: State, fd: FormData): Promise<State> {
   return ok();
 }
 
+// ─── Tipografia (fontes) ──────────────────────────────────────
+export async function saveFonts(_p: State, fd: FormData): Promise<State> {
+  await guard();
+  await db
+    .update(siteSettings)
+    .set({ fontHeading: S(fd, "fontHeading"), fontBody: S(fd, "fontBody"), updatedAt: new Date() })
+    .where(eq(siteSettings.id, "main"));
+  refresh();
+  return ok();
+}
+
 // ─── Navegação do topo ────────────────────────────────────────
 export async function saveNav(_p: State, fd: FormData): Promise<State> {
   await guard();

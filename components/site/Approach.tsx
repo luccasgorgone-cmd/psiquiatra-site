@@ -1,5 +1,6 @@
 import Reveal from "@/components/Reveal";
 import ParallaxImage from "@/components/ParallaxImage";
+import RichText from "@/components/RichText";
 import { Quote } from "lucide-react";
 
 export default function Approach({
@@ -36,8 +37,11 @@ export default function Approach({
               A abordagem
             </p>
             <Quote className="mt-6 h-10 w-10 text-warm" />
-            <blockquote className="mt-4 max-w-2xl font-serif text-2xl font-light italic leading-snug text-ink sm:text-[2rem]">
-              {approach}
+            <blockquote className="mt-4 max-w-2xl">
+              <RichText
+                text={approach}
+                className="font-serif text-2xl font-light italic leading-snug text-ink sm:text-[2rem]"
+              />
             </blockquote>
             <div className="mt-8 flex items-center gap-3">
               <span className="h-px w-10 bg-warm" />

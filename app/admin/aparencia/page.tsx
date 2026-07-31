@@ -1,7 +1,8 @@
 import { getSettings } from "@/lib/queries";
 import { PageHeader, Card, Field, Grid2 } from "@/components/admin/ui";
 import ActionForm from "@/components/admin/ActionForm";
-import { saveBranding, saveNav, saveSocialContact, saveLocation } from "../actions";
+import { saveBranding, saveNav, saveSocialContact, saveLocation, saveFonts } from "../actions";
+import { HEADING_FONTS, BODY_FONTS } from "@/lib/fonts";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +32,31 @@ export default async function AparenciaPage() {
             </Field>
             <Field label="Cor profunda (seções escuras)">
               <input type="color" name="brandDeep" defaultValue={rgbToHex(s?.brandDeepRgb)} className="h-11 w-full rounded-lg border border-ink/12 bg-white p-1" />
+            </Field>
+          </Grid2>
+        </ActionForm>
+      </Card>
+
+      <Card title="Tipografia" description="Escolha as fontes dos títulos e do texto do site">
+        <ActionForm action={saveFonts}>
+          <Grid2>
+            <Field label="Fonte dos títulos">
+              <select name="fontHeading" defaultValue={s?.fontHeading || "fraunces"} className="fld">
+                {Object.entries(HEADING_FONTS).map(([key, f]) => (
+                  <option key={key} value={key}>
+                    {f.label}
+                  </option>
+                ))}
+              </select>
+            </Field>
+            <Field label="Fonte do texto">
+              <select name="fontBody" defaultValue={s?.fontBody || "inter"} className="fld">
+                {Object.entries(BODY_FONTS).map(([key, f]) => (
+                  <option key={key} value={key}>
+                    {f.label}
+                  </option>
+                ))}
+              </select>
             </Field>
           </Grid2>
         </ActionForm>

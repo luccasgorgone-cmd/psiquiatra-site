@@ -1,5 +1,6 @@
 import Reveal from "@/components/Reveal";
 import ParallaxImage from "@/components/ParallaxImage";
+import RichText from "@/components/RichText";
 import { Check, Clock } from "lucide-react";
 
 export default function Clinic({
@@ -44,7 +45,7 @@ export default function Clinic({
             <h2 className="mt-5 max-w-lg text-3xl font-light leading-tight text-ink sm:text-4xl">
               {title}
             </h2>
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted">{description}</p>
+            <RichText text={description} className="mt-6 max-w-xl text-lg leading-relaxed text-muted" />
           </Reveal>
 
           <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2">

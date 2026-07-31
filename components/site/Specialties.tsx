@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Plus } from "lucide-react";
 import Icon from "./Icon";
 import Reveal from "@/components/Reveal";
+import RichText from "@/components/RichText";
 
 type Spec = { id: string; title: string; description: string; icon: string };
 
@@ -65,9 +66,10 @@ export default function Specialties({ items }: { items: Spec[] }) {
                         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                         className="overflow-hidden"
                       >
-                        <p className="pl-16 pr-2 pt-4 text-sm leading-relaxed text-muted">
-                          {s.description}
-                        </p>
+                        <RichText
+                          text={s.description}
+                          className="pl-16 pr-2 pt-4 text-sm leading-relaxed text-muted"
+                        />
                       </motion.div>
                     )}
                   </AnimatePresence>

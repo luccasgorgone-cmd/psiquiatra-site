@@ -1,4 +1,5 @@
 import Reveal from "@/components/Reveal";
+import RichText from "@/components/RichText";
 import { GraduationCap, Video } from "lucide-react";
 
 export default function About({
@@ -43,7 +44,7 @@ export default function About({
               {name}
             </h2>
             <p className="mt-2 text-brand">{title}</p>
-            <p className="mt-6 text-lg leading-relaxed text-muted">{bioLong}</p>
+            <RichText text={bioLong} className="mt-6 text-lg leading-relaxed text-muted" />
           </Reveal>
 
           <div className="mt-8 grid gap-5 sm:grid-cols-2">
@@ -52,7 +53,7 @@ export default function About({
                 <GraduationCap className="h-5 w-5" />
               </span>
               <h3 className="mt-4 font-serif text-lg">Formação</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted">{formation}</p>
+              <RichText text={formation} className="mt-2 text-sm leading-relaxed text-muted" />
             </Reveal>
             <Reveal delay={0.12} className="card p-6">
               <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-warm/15 text-warm">
