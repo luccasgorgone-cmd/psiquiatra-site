@@ -86,11 +86,11 @@ async function main() {
 
   // Mídia — logo (SVG) + fotos reais do Dr. Guilherme e do consultório
   const logoId = await insertMedia(logoSVG(), "Logo do consultório");
-  const heroImgId = await insertImage("hero.jpg", "Dr. Guilherme Cazerta Delnery");
-  const photoId = await insertImage("about.jpg", "Dr. Guilherme Cazerta Delnery");
-  const clinic1 = await insertImage("clinic-1.jpg", "Fachada — Instituto Del Nery");
-  const clinic2 = await insertImage("clinic-2.jpg", "Consultório");
-  const clinic3 = await insertImage("clinic-3.jpg", "Sala de atendimento");
+  const heroImgId = await insertImage("hero.jpg", "Dr. Guilherme Cazerta Delnery"); // _4 (mesa)
+  const photoId = await insertImage("about.jpg", "Dr. Guilherme Cazerta Delnery"); // _2 (sobre)
+  const locationImgId = await insertImage("clinic-1.jpg", "Fachada — Instituto Del Nery"); // fachada
+  const clinicImgId = await insertImage("clinic-2.jpg", "Consultório do Dr. Guilherme"); // _3
+  const approachImgId = await insertImage("clinic-3.jpg", "Dr. Guilherme no consultório"); // _1
 
   // Configurações do site
   const settingsValues = {
@@ -99,6 +99,9 @@ async function main() {
     tagline: "Psiquiatria • Formação internacional e cuidado humano",
     logoId,
     heroImageId: heroImgId,
+    clinicImageId: clinicImgId,
+    approachImageId: approachImgId,
+    locationImageId: locationImgId,
     brandRgb: BRAND,
     brandSoftRgb: "120 140 130",
     brandDeepRgb: "40 54 48",
@@ -174,11 +177,9 @@ async function main() {
     .values(clinicValues)
     .onConflictDoUpdate({ target: schema.clinicInfo.id, set: clinicValues });
 
-  await db.insert(schema.clinicPhotos).values([
-    { mediaId: clinic1, caption: "Instituto Del Nery — Araçatuba", order: 0 },
-    { mediaId: clinic2, caption: "Consultório", order: 1 },
-    { mediaId: clinic3, caption: "Sala de atendimento", order: 2 },
-  ]);
+  // Galeria da clínica começa vazia — as fotos do Dr. Guilherme entram em
+  // destaques editoriais (hero, sobre, abordagem, clínica, localização).
+  // O admin pode adicionar fotos reais de ambiente aqui depois, se quiser.
 
   // Especialidades
   const specs = [

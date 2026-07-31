@@ -3,6 +3,7 @@ import ScrollProgress from "@/components/ScrollProgress";
 import Header from "@/components/site/Header";
 import Hero from "@/components/site/Hero";
 import About from "@/components/site/About";
+import Approach from "@/components/site/Approach";
 import Credentials from "@/components/site/Credentials";
 import Clinic from "@/components/site/Clinic";
 import Specialties from "@/components/site/Specialties";
@@ -78,6 +79,15 @@ export default async function Home() {
           />
         )}
 
+        {doctor?.approach && (
+          <Approach
+            approach={doctor.approach}
+            imageUrl={mediaUrl(s.approachImageId)}
+            doctorName={doctor.name}
+            title={doctor.title}
+          />
+        )}
+
         {credentials.length > 0 && <Credentials items={credentials} />}
 
         {clinic.info && (
@@ -86,6 +96,7 @@ export default async function Home() {
             description={clinic.info.description}
             amenities={(clinic.info.amenities as string[]) || []}
             hours={clinic.info.hours}
+            imageUrl={mediaUrl(s.clinicImageId)}
             photos={clinicPhotos}
           />
         )}
@@ -100,6 +111,7 @@ export default async function Home() {
           phone={s.phone}
           email={s.email}
           hours={clinic.info?.hours || ""}
+          imageUrl={mediaUrl(s.locationImageId)}
         />
       </main>
 

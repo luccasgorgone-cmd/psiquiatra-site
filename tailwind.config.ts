@@ -22,6 +22,12 @@ const config: Config = {
           soft: "rgb(var(--brand-soft) / <alpha-value>)",
           deep: "rgb(var(--brand-deep) / <alpha-value>)",
         },
+        // Acento quente (dourado/âmbar) — complementa a madeira/bege das fotos
+        warm: {
+          DEFAULT: "#A9814E",
+          soft: "#CDA974",
+          tint: "#F4ECDE",
+        },
       },
       fontFamily: {
         serif: ["var(--font-serif)", "Georgia", "serif"],

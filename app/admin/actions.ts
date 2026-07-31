@@ -267,7 +267,10 @@ export async function deleteHelpSign(fd: FormData): Promise<void> {
 }
 
 // ─── Mídia ────────────────────────────────────────────────────
-async function setSettingsMedia(field: "logoId" | "heroImageId" | "ogImageId", file: File) {
+async function setSettingsMedia(
+  field: "logoId" | "heroImageId" | "ogImageId" | "clinicImageId" | "approachImageId" | "locationImageId",
+  file: File
+) {
   const id = await saveMedia(file, field);
   const [prev] = await db
     .select({ old: siteSettings[field] })
@@ -301,6 +304,32 @@ export async function uploadHero(_p: State, fd: FormData): Promise<State> {
   }
   refresh();
   return ok("Imagem atualizada");
+}
+
+async function uploadSettingsImage(
+  field: "clinicImageId" | "approachImageId" | "locationImageId",
+  fd: FormData
+): Promise<State> {
+  await guard();
+  const file = fd.get("file") as File;
+  if (!file || file.size === 0) return fail("Selecione um arquivo");
+  try {
+    await setSettingsMedia(field, file);
+  } catch (e) {
+    return fail((e as Error).message);
+  }
+  refresh();
+  return ok("Imagem atualizada");
+}
+
+export async function uploadClinicImage(_p: State, fd: FormData) {
+  return uploadSettingsImage("clinicImageId", fd);
+}
+export async function uploadApproachImage(_p: State, fd: FormData) {
+  return uploadSettingsImage("approachImageId", fd);
+}
+export async function uploadLocationImage(_p: State, fd: FormData) {
+  return uploadSettingsImage("locationImageId", fd);
 }
 
 export async function uploadDoctorPhoto(_p: State, fd: FormData): Promise<State> {

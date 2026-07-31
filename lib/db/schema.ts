@@ -57,6 +57,11 @@ export const siteSettings = pgTable("site_settings", {
   metaDescription: text("meta_description").notNull().default(""),
   ogImageId: text("og_image_id"),
 
+  // Imagens editoriais espalhadas pelo site
+  clinicImageId: text("clinic_image_id"),
+  approachImageId: text("approach_image_id"),
+  locationImageId: text("location_image_id"),
+
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 

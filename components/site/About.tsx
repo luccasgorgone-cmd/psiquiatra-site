@@ -1,5 +1,5 @@
 import Reveal from "@/components/Reveal";
-import { GraduationCap, HeartHandshake } from "lucide-react";
+import { GraduationCap, Video } from "lucide-react";
 
 export default function About({
   name,
@@ -48,14 +48,21 @@ export default function About({
 
           <div className="mt-8 grid gap-5 sm:grid-cols-2">
             <Reveal delay={0.05} className="card p-6">
-              <HeartHandshake className="h-6 w-6 text-brand" />
-              <h3 className="mt-4 font-serif text-lg">Abordagem</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted">{approach}</p>
-            </Reveal>
-            <Reveal delay={0.12} className="card p-6">
-              <GraduationCap className="h-6 w-6 text-brand" />
+              <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-brand/10 text-brand">
+                <GraduationCap className="h-5 w-5" />
+              </span>
               <h3 className="mt-4 font-serif text-lg">Formação</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted">{formation}</p>
+            </Reveal>
+            <Reveal delay={0.12} className="card p-6">
+              <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-warm/15 text-warm">
+                <Video className="h-5 w-5" />
+              </span>
+              <h3 className="mt-4 font-serif text-lg">Atendimento</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted">
+                Consultas presenciais em Araçatuba e online (teleconsulta), com sigilo e
+                acompanhamento próximo em cada etapa.
+              </p>
             </Reveal>
           </div>
         </div>

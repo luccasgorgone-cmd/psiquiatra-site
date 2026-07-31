@@ -15,6 +15,13 @@
       "when": 1785458460870,
       "tag": "0001_simple_guardian",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1785461679843,
+      "tag": "0002_fixed_doctor_octopus",
+      "breakpoints": true
     }
   ]
 }
