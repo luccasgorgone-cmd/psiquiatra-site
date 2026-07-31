@@ -78,13 +78,14 @@ export default function AdminShell({
         })}
       </nav>
       <div className="border-t border-ink/[0.06] p-3">
-        <Link
-          href="/"
+        <a
+          href={process.env.NEXT_PUBLIC_SITE_URL || "/"}
           target="_blank"
+          rel="noopener"
           className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-graphite hover:bg-ink/[0.04]"
         >
           <ExternalLink className="h-4 w-4" /> Ver site
-        </Link>
+        </a>
         <div className="mt-2 flex items-center justify-between rounded-xl bg-ink/[0.03] px-3 py-2.5">
           <div className="min-w-0">
             <p className="truncate text-sm text-ink">{user.name || "Admin"}</p>

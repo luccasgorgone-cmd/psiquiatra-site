@@ -55,6 +55,17 @@ Stack: **Next.js 15 (App Router, TypeScript)** · **PostgreSQL + Drizzle ORM** �
 > Domínio próprio: em **Settings → Networking** do serviço, adicione seu domínio e
 > aponte o DNS conforme instruído.
 
+### 🔒 Painel admin em domínio separado (opcional, grátis)
+
+Para servir o painel em um endereço próprio (ex.: `admin.seusite.com`), sem custo extra:
+
+1. No **mesmo serviço** do Railway, em **Settings → Networking**, adicione um segundo
+   domínio — pode ser um subdomínio seu (`admin.seusite.com`) ou um domínio grátis
+   `*.up.railway.app`.
+2. Defina a variável `ADMIN_HOST` com esse host (ex.: `admin.seusite.com`).
+3. Pronto: nesse domínio aparece **apenas o painel**; no domínio público o `/admin`
+   fica **bloqueado (404)**. Tudo com um único deploy.
+
 ---
 
 ## 🖥️ Rodando localmente
