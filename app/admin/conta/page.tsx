@@ -65,8 +65,8 @@ export default async function ContaPage() {
               <Field label="Nome">
                 <input name="name" className="fld" />
               </Field>
-              <Field label="E-mail">
-                <input type="email" name="email" className="fld" />
+              <Field label="Usuário ou e-mail">
+                <input type="text" name="email" autoCapitalize="none" className="fld" placeholder="ex.: guilhermedelnery" />
               </Field>
             </Grid2>
             <Field label="Senha (mín. 6 caracteres)">

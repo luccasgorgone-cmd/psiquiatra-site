@@ -20,8 +20,8 @@ export default function LoginPage() {
 
         <form action={action} className="card space-y-4 p-6">
           <label className="block">
-            <span className="mb-1.5 block text-sm text-graphite">E-mail</span>
-            <input name="email" type="email" required className="fld" placeholder="voce@clinica.com.br" />
+            <span className="mb-1.5 block text-sm text-graphite">Usuário ou e-mail</span>
+            <input name="email" type="text" autoCapitalize="none" autoComplete="username" required className="fld" placeholder="guilhermedelnery" />
           </label>
           <label className="block">
             <span className="mb-1.5 block text-sm text-graphite">Senha</span>
