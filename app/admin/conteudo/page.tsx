@@ -65,7 +65,7 @@ export default async function ConteudoPage() {
         </ActionForm>
       </Card>
 
-      <Card title="Sobre a médica">
+      <Card title="Sobre o médico">
         <ActionForm action={saveDoctor}>
           <Grid2>
             <Field label="Nome">

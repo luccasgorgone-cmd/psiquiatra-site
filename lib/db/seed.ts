@@ -29,7 +29,7 @@ function portraitSVG() {
   <rect width="900" height="1100" fill="url(#g)"/>
   <circle cx="450" cy="430" r="180" fill="#ffffff" opacity="0.12"/>
   <rect x="230" y="640" width="440" height="360" rx="220" fill="#ffffff" opacity="0.12"/>
-  <text x="450" y="1050" text-anchor="middle" font-family="Georgia, serif" font-size="34" fill="#ffffff" opacity="0.7">Foto da médica</text>
+  <text x="450" y="1050" text-anchor="middle" font-family="Georgia, serif" font-size="34" fill="#ffffff" opacity="0.7">Foto do médico</text>
 </svg>`;
 }
 
@@ -48,8 +48,8 @@ function logoSVG() {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="240" height="80" viewBox="0 0 240 80">
   <circle cx="40" cy="40" r="26" fill="none" stroke="#46564e" stroke-width="3"/>
   <path d="M40 26 C30 34, 30 46, 40 54 C50 46, 50 34, 40 26 Z" fill="#46564e" opacity="0.85"/>
-  <text x="82" y="38" font-family="Georgia, serif" font-size="26" fill="#1a1a17">Dra. Nome</text>
-  <text x="82" y="60" font-family="Arial, sans-serif" font-size="13" letter-spacing="3" fill="#6b6760">PSIQUIATRIA</text>
+  <text x="82" y="38" font-family="Georgia, serif" font-size="24" fill="#1a1a17">Dr. Guilherme</text>
+  <text x="82" y="60" font-family="Arial, sans-serif" font-size="12" letter-spacing="3" fill="#6b6760">PSIQUIATRIA</text>
 </svg>`;
 }
 
@@ -69,75 +69,76 @@ async function main() {
   await db.delete(schema.specialties);
   await db.delete(schema.helpSigns);
   await db.delete(schema.availabilityRules);
+  await db.delete(schema.credentials);
 
   // Mídia
-  const logoId = await insertMedia(logoSVG(), "Logo da clínica");
-  const photoId = await insertMedia(portraitSVG(), "Retrato da médica");
+  const logoId = await insertMedia(logoSVG(), "Logo do consultório");
+  const photoId = await insertMedia(portraitSVG(), "Retrato do médico");
   const clinic1 = await insertMedia(clinicSVG("Recepção", 0), "Recepção da clínica");
   const clinic2 = await insertMedia(clinicSVG("Consultório", 1), "Consultório");
   const clinic3 = await insertMedia(clinicSVG("Sala de espera", 2), "Sala de espera");
 
   // Configurações do site
+  const settingsValues = {
+    id: "main",
+    siteName: "Dr. Guilherme Cazerta Delnery",
+    tagline: "Psiquiatria • Formação internacional e cuidado humano",
+    logoId,
+    brandRgb: BRAND,
+    brandSoftRgb: "120 140 130",
+    brandDeepRgb: "40 54 48",
+    heroKicker: "Psiquiatria • Atendimento humanizado",
+    heroTitle: "Cuidar da mente é cuidar da sua vida inteira",
+    heroSubtitle:
+      "Atendimento psiquiátrico presencial e online, com escuta atenta, sigilo e tratamento baseado em evidências.",
+    navItems: [
+      { label: "Início", href: "#inicio" },
+      { label: "Sobre", href: "#sobre" },
+      { label: "Trajetória", href: "#trajetoria" },
+      { label: "A Clínica", href: "#clinica" },
+      { label: "Especialidades", href: "#especialidades" },
+      { label: "Localização", href: "#localizacao" },
+      { label: "Contato", href: "#contato" },
+    ],
+    footerText:
+      "Atendimento psiquiátrico com acolhimento, ética e confidencialidade.",
+    footerNote: "Este site tem caráter informativo e não substitui uma consulta médica.",
+    instagram: "https://instagram.com/",
+    facebook: "https://facebook.com/",
+    whatsapp: "5599999999999",
+    phone: "(00) 0000-0000",
+    email: "contato@drguilhermedelnery.com.br",
+    addressLine: "Av. Exemplo, 1000 — Sala 101, Centro, Jundiaí — SP",
+    mapsEmbed:
+      "https://www.google.com/maps?q=Jundiaí,+São+Paulo&output=embed",
+    metaTitle: "Dr. Guilherme Cazerta Delnery — Médico Psiquiatra",
+    metaDescription:
+      "Psiquiatria com formação internacional (University of Iowa). Atendimento humanizado, presencial e online. Agende sua consulta.",
+  };
   await db
     .insert(schema.siteSettings)
-    .values({
-      id: "main",
-      siteName: "Dra. Nome Sobrenome",
-      tagline: "Psiquiatria • Saúde mental com escuta e ciência",
-      logoId,
-      brandRgb: BRAND,
-      brandSoftRgb: "120 140 130",
-      brandDeepRgb: "40 54 48",
-      heroKicker: "Psiquiatria • Atendimento humanizado",
-      heroTitle: "Cuidar da mente é cuidar da sua vida inteira",
-      heroSubtitle:
-        "Atendimento psiquiátrico presencial e online, com escuta atenta, sigilo e tratamento baseado em evidências.",
-      navItems: [
-        { label: "Início", href: "#inicio" },
-        { label: "Sobre", href: "#sobre" },
-        { label: "A Clínica", href: "#clinica" },
-        { label: "Especialidades", href: "#especialidades" },
-        { label: "Localização", href: "#localizacao" },
-        { label: "Contato", href: "#contato" },
-      ],
-      footerText:
-        "Atendimento psiquiátrico com acolhimento, ética e confidencialidade.",
-      footerNote: "Este site tem caráter informativo e não substitui uma consulta médica.",
-      instagram: "https://instagram.com/",
-      facebook: "https://facebook.com/",
-      whatsapp: "5599999999999",
-      phone: "(00) 0000-0000",
-      email: "contato@clinica.com.br",
-      addressLine: "Av. Exemplo, 1000 — Sala 101, Centro, Cidade — UF",
-      mapsEmbed:
-        "https://www.google.com/maps?q=Avenida+Paulista,+São+Paulo&output=embed",
-      metaTitle: "Dra. Nome Sobrenome — Psiquiatra",
-      metaDescription:
-        "Psiquiatria com atendimento humanizado, presencial e online. Agende sua consulta.",
-    })
-    .onConflictDoUpdate({
-      target: schema.siteSettings.id,
-      set: { logoId },
-    });
+    .values(settingsValues)
+    .onConflictDoUpdate({ target: schema.siteSettings.id, set: settingsValues });
 
   // Médica
+  const doctorValues = {
+    id: "main",
+    name: "Dr. Guilherme Cazerta Delnery",
+    crm: "CRM/SP 000000",
+    rqe: "RQE 00000",
+    title: "Médico Psiquiatra",
+    photoId,
+    bioLong:
+      "Médico psiquiatra formado pela Faculdade de Medicina de Jundiaí, com residência em Psiquiatria realizada na University of Iowa, nos Estados Unidos. Une uma formação sólida e internacional à prática baseada em evidências, sempre com um cuidado próximo, ético e livre de julgamentos — no qual cada paciente é ouvido em sua singularidade e acompanhado com segurança em cada etapa do tratamento.",
+    approach:
+      "Uma escuta cuidadosa é o ponto de partida. A partir dela, construímos juntos um plano de tratamento claro, seguro e adaptado à sua rotina — sempre com transparência e respeito ao seu tempo.",
+    formation:
+      "Graduação em Medicina pela Faculdade de Medicina de Jundiaí (FMJ). Residência em Psiquiatria na University of Iowa (EUA), com atualização contínua em condutas baseadas em evidências.",
+  };
   await db
     .insert(schema.doctor)
-    .values({
-      id: "main",
-      name: "Dra. Nome Sobrenome",
-      crm: "CRM/UF 000000",
-      rqe: "RQE 00000",
-      title: "Médica Psiquiatra",
-      photoId,
-      bioLong:
-        "Médica psiquiatra com atuação clínica dedicada ao cuidado integral da saúde mental. Acredita em um acompanhamento próximo, respeitoso e livre de julgamentos, no qual cada pessoa é ouvida em sua singularidade. O tratamento une base científica atualizada e um olhar humano para o momento de vida de cada paciente.",
-      approach:
-        "Uma escuta cuidadosa é o ponto de partida. A partir dela, construímos juntos um plano de tratamento claro, seguro e adaptado à sua rotina — sempre com transparência sobre cada etapa.",
-      formation:
-        "Graduação em Medicina e Residência em Psiquiatria por instituição de referência. Formação continuada em saúde mental, com atualização constante em condutas baseadas em evidências.",
-    })
-    .onConflictDoUpdate({ target: schema.doctor.id, set: { photoId } });
+    .values(doctorValues)
+    .onConflictDoUpdate({ target: schema.doctor.id, set: doctorValues });
 
   // Clínica
   await db
@@ -200,6 +201,44 @@ async function main() {
   await db.insert(schema.helpSigns).values(
     signs.map((label, i) => ({ label, order: i }))
   );
+
+  // Formação & Trajetória
+  await db.insert(schema.credentials).values([
+    {
+      title: "Graduação em Medicina",
+      org: "Faculdade de Medicina de Jundiaí (FMJ)",
+      period: "Formação médica",
+      detail:
+        "Formação em uma das instituições de medicina mais tradicionais do interior de São Paulo.",
+      icon: "graduation",
+      order: 0,
+    },
+    {
+      title: "Residência em Psiquiatria",
+      org: "University of Iowa — Estados Unidos",
+      period: "Especialização internacional",
+      detail:
+        "Residência médica em psiquiatria nos EUA, com vivência em práticas clínicas de referência internacional.",
+      icon: "globe",
+      order: 1,
+    },
+    {
+      title: "Título de Especialista",
+      org: "Registro de Qualificação de Especialidade (RQE)",
+      period: "Habilitação em Psiquiatria",
+      detail: "Qualificação reconhecida para a prática especializada da psiquiatria.",
+      icon: "award",
+      order: 2,
+    },
+    {
+      title: "Atuação clínica",
+      org: "Consultório e teleconsulta",
+      period: "Presencial e online",
+      detail: "Atendimento com acolhimento, sigilo e acompanhamento próximo.",
+      icon: "stethoscope",
+      order: 3,
+    },
+  ]);
 
   // Disponibilidade — seg a sex, 9h às 18h, slots de 50min
   await db.insert(schema.availabilityRules).values(

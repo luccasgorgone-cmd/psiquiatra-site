@@ -101,6 +101,18 @@ export const clinicPhotos = pgTable("clinic_photos", {
   order: integer("order").notNull().default(0),
 });
 
+// ── Formação & Trajetória (credenciais) ───────────────────────
+export const credentials = pgTable("credentials", {
+  id: id(),
+  title: text("title").notNull(), // ex.: "Residência em Psiquiatria"
+  org: text("org").notNull(), // ex.: "University of Iowa (EUA)"
+  period: text("period").notNull().default(""), // ex.: "2019 – 2023"
+  detail: text("detail").notNull().default(""),
+  icon: text("icon").notNull().default("graduation"), // graduation | globe | award | stethoscope
+  order: integer("order").notNull().default(0),
+  active: boolean("active").notNull().default(true),
+});
+
 // ── "Quando buscar ajuda" ─────────────────────────────────────
 export const helpSigns = pgTable("help_signs", {
   id: id(),

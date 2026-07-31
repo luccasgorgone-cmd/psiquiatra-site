@@ -8,6 +8,13 @@
       "when": 1785456065938,
       "tag": "0000_sleepy_scalphunter",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1785458460870,
+      "tag": "0001_simple_guardian",
+      "breakpoints": true
     }
   ]
 }

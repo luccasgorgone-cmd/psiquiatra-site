@@ -1,7 +1,9 @@
 import SmoothScroll from "@/components/SmoothScroll";
+import ScrollProgress from "@/components/ScrollProgress";
 import Header from "@/components/site/Header";
 import Hero from "@/components/site/Hero";
 import About from "@/components/site/About";
+import Credentials from "@/components/site/Credentials";
 import Clinic from "@/components/site/Clinic";
 import Specialties from "@/components/site/Specialties";
 import HelpSigns from "@/components/site/HelpSigns";
@@ -17,19 +19,21 @@ import {
   getSpecialties,
   getHelpSigns,
   getAgentConfig,
+  getCredentials,
   mediaUrl,
 } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [settings, doctor, clinic, specialties, helpSigns, agent] = await Promise.all([
+  const [settings, doctor, clinic, specialties, helpSigns, agent, credentials] = await Promise.all([
     getSettings(),
     getDoctor(),
     getClinic(),
     getSpecialties(),
     getHelpSigns(),
     getAgentConfig(),
+    getCredentials(),
   ]);
 
   const s = settings!;
@@ -48,6 +52,7 @@ export default async function Home() {
   return (
     <>
       <SmoothScroll />
+      <ScrollProgress />
       <Header siteName={s.siteName} logoUrl={mediaUrl(s.logoId)} nav={nav} />
 
       <main>
@@ -72,6 +77,8 @@ export default async function Home() {
             photoUrl={mediaUrl(doctor.photoId)}
           />
         )}
+
+        {credentials.length > 0 && <Credentials items={credentials} />}
 
         {clinic.info && (
           <Clinic

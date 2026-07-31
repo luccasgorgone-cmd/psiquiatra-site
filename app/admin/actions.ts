@@ -9,6 +9,7 @@ import {
   clinicInfo,
   clinicPhotos,
   specialties,
+  credentials,
   helpSigns,
   availabilityRules,
   blockedSlots,
@@ -204,6 +205,47 @@ export async function updateSpecialty(_p: State, fd: FormData): Promise<State> {
 export async function deleteSpecialty(fd: FormData): Promise<void> {
   await guard();
   await db.delete(specialties).where(eq(specialties.id, S(fd, "id")));
+  refresh();
+}
+
+// ─── Formação & Trajetória ────────────────────────────────────
+export async function createCredential(_p: State, fd: FormData): Promise<State> {
+  await guard();
+  const title = S(fd, "title");
+  const org = S(fd, "org");
+  if (!title || !org) return fail("Informe título e instituição");
+  const count = (await db.select().from(credentials)).length;
+  await db.insert(credentials).values({
+    title,
+    org,
+    period: S(fd, "period"),
+    detail: S(fd, "detail"),
+    icon: S(fd, "icon") || "award",
+    order: count,
+  });
+  refresh();
+  return ok("Item adicionado");
+}
+
+export async function updateCredential(_p: State, fd: FormData): Promise<State> {
+  await guard();
+  await db
+    .update(credentials)
+    .set({
+      title: S(fd, "title"),
+      org: S(fd, "org"),
+      period: S(fd, "period"),
+      detail: S(fd, "detail"),
+      icon: S(fd, "icon") || "award",
+    })
+    .where(eq(credentials.id, S(fd, "id")));
+  refresh();
+  return ok();
+}
+
+export async function deleteCredential(fd: FormData): Promise<void> {
+  await guard();
+  await db.delete(credentials).where(eq(credentials.id, S(fd, "id")));
   refresh();
 }
 

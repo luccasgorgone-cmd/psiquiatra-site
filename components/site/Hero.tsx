@@ -33,7 +33,18 @@ export default function Hero({
   return (
     <section id="inicio" ref={ref} className="relative overflow-hidden pt-28 pb-20 sm:pt-36">
       <div className="noise pointer-events-none absolute inset-0 opacity-70" />
-      <div className="pointer-events-none absolute -right-40 -top-40 h-[36rem] w-[36rem] rounded-full bg-brand/10 blur-3xl" />
+      <motion.div
+        aria-hidden
+        className="pointer-events-none absolute -right-40 -top-40 h-[36rem] w-[36rem] rounded-full bg-brand/10 blur-3xl"
+        animate={{ scale: [1, 1.15, 1], x: [0, -30, 0], y: [0, 20, 0] }}
+        transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        aria-hidden
+        className="pointer-events-none absolute -left-32 bottom-0 h-[26rem] w-[26rem] rounded-full bg-brand-soft/10 blur-3xl"
+        animate={{ scale: [1, 1.2, 1], x: [0, 40, 0], y: [0, -20, 0] }}
+        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+      />
 
       <div className="container-x relative grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
         <div>
@@ -108,7 +119,7 @@ export default function Hero({
                 <img src={photoUrl} alt={doctorName} className="h-full w-full object-cover" />
               ) : (
                 <div className="flex h-full w-full items-center justify-center bg-brand-deep text-ivory/70">
-                  Foto da médica
+                  Foto do médico
                 </div>
               )}
             </motion.div>

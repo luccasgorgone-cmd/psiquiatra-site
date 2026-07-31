@@ -10,6 +10,7 @@ import {
   helpSigns,
   agentConfig,
   availabilityRules,
+  credentials,
 } from "./db/schema";
 import { asc, eq } from "drizzle-orm";
 
@@ -41,6 +42,14 @@ export const getSpecialties = cache(async () => {
     .from(specialties)
     .where(eq(specialties.active, true))
     .orderBy(asc(specialties.order));
+});
+
+export const getCredentials = cache(async () => {
+  return db
+    .select()
+    .from(credentials)
+    .where(eq(credentials.active, true))
+    .orderBy(asc(credentials.order));
 });
 
 export const getHelpSigns = cache(async () => {
