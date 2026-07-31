@@ -19,10 +19,12 @@ export async function generateMetadata(): Promise<Metadata> {
     "Atendimento psiquiátrico humanizado, presencial e online. Agende sua consulta.";
   const url = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
   const og = mediaUrl(s?.ogImageId) || mediaUrl(s?.heroImageId) || undefined;
+  const favicon = mediaUrl(s?.faviconId) || "/favicon.svg";
   return {
     metadataBase: new URL(url),
     title: { default: title, template: `%s · ${s?.siteName || title}` },
     description,
+    icons: { icon: favicon, shortcut: favicon, apple: favicon },
     openGraph: {
       title,
       description,

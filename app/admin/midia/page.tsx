@@ -6,6 +6,7 @@ import { PageHeader, Card, Field } from "@/components/admin/ui";
 import ActionForm from "@/components/admin/ActionForm";
 import {
   uploadLogo,
+  uploadFavicon,
   uploadHero,
   uploadDoctorPhoto,
   uploadClinicImage,
@@ -69,6 +70,17 @@ export default async function MidiaPage() {
           </ActionForm>
         </Card>
       </div>
+
+      <Card title="Favicon" description="Ícone que aparece na aba do navegador (quadrado, PNG ou SVG)">
+        <div className="mb-4 max-w-[80px]">
+          <Preview url={mediaUrl(s?.faviconId) || "/favicon.svg"} ratio="aspect-square" />
+        </div>
+        <ActionForm action={uploadFavicon} submitLabel="Enviar favicon">
+          <Field label="Novo ícone" hint="Ideal: imagem quadrada (ex.: 128×128 ou 256×256)">
+            <input type="file" name="file" accept="image/png,image/svg+xml,image/x-icon,image/webp" className="fld" />
+          </Field>
+        </ActionForm>
+      </Card>
 
       <Card title="Imagem do topo (Hero)" description="Opcional — usada no compartilhamento e no topo">
         <div className="mb-4 max-w-[320px]">

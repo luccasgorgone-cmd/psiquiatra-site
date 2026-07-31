@@ -13,7 +13,7 @@ export const metadata = {
 
 export default async function AgendarPage() {
   const [days, settings, doctor] = await Promise.all([
-    getAvailableDays({ daysAhead: 45, leadHours: 3 }),
+    getAvailableDays({ daysAhead: 90, leadHours: 3 }),
     getSettings(),
     getDoctor(),
   ]);

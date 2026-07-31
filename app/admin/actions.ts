@@ -19,6 +19,7 @@ import {
   patients,
   clinicalSessions,
   patientMessages,
+  appointmentLabels,
 } from "@/lib/db/schema";
 import { saveMedia, deleteMedia } from "@/lib/storage";
 import { getSession, hashPassword } from "@/lib/auth";
@@ -282,7 +283,14 @@ export async function deleteHelpSign(fd: FormData): Promise<void> {
 
 // ─── Mídia ────────────────────────────────────────────────────
 async function setSettingsMedia(
-  field: "logoId" | "heroImageId" | "ogImageId" | "clinicImageId" | "approachImageId" | "locationImageId",
+  field:
+    | "logoId"
+    | "heroImageId"
+    | "ogImageId"
+    | "clinicImageId"
+    | "approachImageId"
+    | "locationImageId"
+    | "faviconId",
   file: File
 ) {
   const id = await saveMedia(file, field);
@@ -305,6 +313,19 @@ export async function uploadLogo(_p: State, fd: FormData): Promise<State> {
   }
   refresh();
   return ok("Logo atualizada");
+}
+
+export async function uploadFavicon(_p: State, fd: FormData): Promise<State> {
+  await guard();
+  const file = fd.get("file") as File;
+  if (!file || file.size === 0) return fail("Selecione um arquivo");
+  try {
+    await setSettingsMedia("faviconId", file);
+  } catch (e) {
+    return fail((e as Error).message);
+  }
+  refresh();
+  return ok("Favicon atualizado");
 }
 
 export async function uploadHero(_p: State, fd: FormData): Promise<State> {
@@ -681,4 +702,83 @@ export async function sendDoctorMessage(_p: State, fd: FormData): Promise<State>
     .where(and(eq(patientMessages.patientId, patientId), eq(patientMessages.sender, "patient")));
   refreshPatient(patientId);
   return ok("Mensagem enviada");
+}
+
+// ─── Agenda: etiquetas coloridas ──────────────────────────────
+function refreshAgenda() {
+  revalidatePath("/admin/consultas");
+  revalidatePath("/");
+  revalidatePath("/agendar");
+}
+
+export async function createLabel(_p: State, fd: FormData): Promise<State> {
+  await guard();
+  const name = S(fd, "name");
+  if (!name) return fail("Informe o nome da etiqueta");
+  const color = /^#[0-9a-f]{6}$/i.test(S(fd, "color")) ? S(fd, "color") : "#A9814E";
+  const n = (await db.select().from(appointmentLabels)).length;
+  await db.insert(appointmentLabels).values({ name, color, order: n });
+  refreshAgenda();
+  return ok("Etiqueta criada");
+}
+
+export async function updateLabel(_p: State, fd: FormData): Promise<State> {
+  await guard();
+  const id = S(fd, "id");
+  const color = /^#[0-9a-f]{6}$/i.test(S(fd, "color")) ? S(fd, "color") : "#A9814E";
+  await db.update(appointmentLabels).set({ name: S(fd, "name"), color }).where(eq(appointmentLabels.id, id));
+  refreshAgenda();
+  return ok();
+}
+
+export async function deleteLabel(fd: FormData): Promise<void> {
+  await guard();
+  const id = S(fd, "id");
+  await db.update(appointments).set({ labelId: null }).where(eq(appointments.labelId, id));
+  await db.delete(appointmentLabels).where(eq(appointmentLabels.id, id));
+  refreshAgenda();
+}
+
+// ─── Agenda: marcação manual (evento criado pelo médico) ──────
+export async function createManualAppointment(_p: State, fd: FormData): Promise<State> {
+  await guard();
+  const dateStr = S(fd, "date");
+  const time = S(fd, "time");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr) || !/^\d{2}:\d{2}$/.test(time)) {
+    return fail("Informe data e horário válidos");
+  }
+  const title = S(fd, "title");
+  if (!title) return fail("Informe um título para a marcação");
+  const durationMin = Math.max(10, Number(fd.get("durationMin")) || 50);
+  const start = new Date(`${dateStr}T${time}:00-03:00`);
+  const end = new Date(start.getTime() + durationMin * 60 * 1000);
+  const patientId = S(fd, "patientId") || null;
+  const labelId = S(fd, "labelId") || null;
+  await db.insert(appointments).values({
+    patientId,
+    labelId,
+    kind: "marcacao",
+    title,
+    name: title,
+    phone: S(fd, "phone"),
+    email: "",
+    start,
+    end,
+    mode: S(fd, "mode") || "presencial",
+    notes: S(fd, "notes"),
+    channel: "SITE",
+    status: "CONFIRMADO",
+  });
+  refreshAgenda();
+  return ok("Marcação adicionada");
+}
+
+export async function updateAppointmentMeta(_p: State, fd: FormData): Promise<State> {
+  await guard();
+  const id = S(fd, "id");
+  const status = S(fd, "status") as "PENDENTE" | "CONFIRMADO" | "CANCELADO" | "CONCLUIDO";
+  const labelId = S(fd, "labelId") || null;
+  await db.update(appointments).set({ status, labelId }).where(eq(appointments.id, id));
+  refreshAgenda();
+  return ok("Atualizado");
 }

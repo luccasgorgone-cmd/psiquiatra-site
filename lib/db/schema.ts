@@ -65,6 +65,7 @@ export const siteSettings = pgTable("site_settings", {
   clinicImageId: text("clinic_image_id"),
   approachImageId: text("approach_image_id"),
   locationImageId: text("location_image_id"),
+  faviconId: text("favicon_id"),
 
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -161,6 +162,9 @@ export const appointments = pgTable(
   {
     id: id(),
     patientId: text("patient_id"), // vínculo opcional com o cadastro do paciente
+    labelId: text("label_id"), // etiqueta colorida (opcional)
+    kind: text("kind").notNull().default("consulta"), // consulta | marcacao
+    title: text("title").notNull().default(""), // título livre para marcações manuais
     name: text("name").notNull(),
     phone: text("phone").notNull(),
     email: text("email").notNull().default(""),
@@ -177,6 +181,15 @@ export const appointments = pgTable(
     patientIdx: index("appointments_patient_idx").on(t.patientId),
   })
 );
+
+// ── Etiquetas coloridas para a agenda ─────────────────────────
+export const appointmentLabels = pgTable("appointment_labels", {
+  id: id(),
+  name: text("name").notNull(),
+  color: text("color").notNull().default("#A9814E"), // hex
+  order: integer("order").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
 
 // ── Admin ─────────────────────────────────────────────────────
 export const adminUsers = pgTable("admin_users", {
@@ -270,3 +283,4 @@ export type AgentConfigRow = typeof agentConfig.$inferSelect;
 export type Patient = typeof patients.$inferSelect;
 export type ClinicalSession = typeof clinicalSessions.$inferSelect;
 export type PatientMessage = typeof patientMessages.$inferSelect;
+export type AppointmentLabel = typeof appointmentLabels.$inferSelect;

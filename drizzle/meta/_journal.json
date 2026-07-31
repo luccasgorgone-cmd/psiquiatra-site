@@ -36,6 +36,13 @@
       "when": 1785512619023,
       "tag": "0004_dry_vance_astro",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1785523467112,
+      "tag": "0005_conscious_mauler",
+      "breakpoints": true
     }
   ]
 }
