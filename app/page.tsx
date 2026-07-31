@@ -53,8 +53,29 @@ export default async function Home() {
 
   const quickReplies = ((agent?.faq as { q: string }[]) || []).slice(0, 4).map((f) => f.q);
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Physician",
+    name: doctor?.name || s.siteName,
+    medicalSpecialty: "Psychiatric",
+    description: s.metaDescription || undefined,
+    url: siteUrl || undefined,
+    image: siteUrl && s.heroImageId ? `${siteUrl}/api/media/${s.heroImageId}` : undefined,
+    telephone: s.phone || undefined,
+    email: s.email || undefined,
+    address: s.addressLine
+      ? { "@type": "PostalAddress", streetAddress: s.addressLine, addressCountry: "BR" }
+      : undefined,
+    sameAs: [s.instagram, s.facebook].filter(Boolean),
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <SmoothScroll />
       <ScrollProgress />
       <Header siteName={s.siteName} logoUrl={mediaUrl(s.logoId)} nav={nav} />

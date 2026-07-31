@@ -40,7 +40,7 @@ export default async function MidiaPage() {
     db.select().from(clinicPhotos).orderBy(asc(clinicPhotos.order)),
   ]);
 
-  const hint = "PNG, JPG, WEBP ou SVG · até 6MB";
+  const hint = "PNG, JPG, WEBP ou SVG · até 15MB · otimizamos automaticamente";
 
   return (
     <div>
