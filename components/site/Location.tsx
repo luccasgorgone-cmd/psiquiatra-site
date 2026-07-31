@@ -67,18 +67,18 @@ export default function Location({
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {cards.map((r, i) => (
-            <Reveal key={i} delay={i * 0.06} className="card flex items-start gap-4 p-5">
+            <Reveal key={i} delay={i * 0.06} className="card flex min-w-0 items-start gap-4 p-5">
               <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-warm/15 text-warm">
                 <r.icon className="h-5 w-5" />
               </span>
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <p className="text-xs uppercase tracking-wider text-muted">{r.label}</p>
                 {r.href ? (
-                  <a href={r.href} className="mt-1 block break-words text-graphite hover:text-brand">
+                  <a href={r.href} className="mt-1 block [overflow-wrap:anywhere] text-graphite hover:text-brand">
                     {r.value}
                   </a>
                 ) : (
-                  <p className="mt-1 break-words text-graphite">{r.value}</p>
+                  <p className="mt-1 [overflow-wrap:anywhere] text-graphite">{r.value}</p>
                 )}
               </div>
             </Reveal>

@@ -2,6 +2,7 @@ import "dotenv/config";
 import { readFileSync } from "fs";
 import { join } from "path";
 import { drizzle } from "drizzle-orm/node-postgres";
+import { eq } from "drizzle-orm";
 import { Pool } from "pg";
 import bcrypt from "bcryptjs";
 import * as schema from "./schema";
@@ -74,7 +75,24 @@ async function insertImage(file: string, alt: string) {
   return row.id;
 }
 
-async function main() {
+export async function seed(opts?: { onlyIfEmpty?: boolean }) {
+  if (opts?.onlyIfEmpty) {
+    try {
+      const [existing] = await db
+        .select()
+        .from(schema.siteSettings)
+        .where(eq(schema.siteSettings.id, "main"))
+        .limit(1);
+      if (existing) {
+        console.log("Banco já populado — pulando seed automático.");
+        await pool.end();
+        return { seeded: false };
+      }
+    } catch {
+      // tabelas ainda não existem — segue e tenta semear
+    }
+  }
+
   console.log("Semeando banco...");
 
   // Limpa listas para re-seed idempotente
@@ -301,9 +319,5 @@ async function main() {
 
   console.log(`✔ Seed concluído. Admin: ${email}`);
   await pool.end();
+  return { seeded: true };
 }
-
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
