@@ -10,11 +10,11 @@ function hostOf(req: NextRequest) {
   return h.toLowerCase().split(":")[0];
 }
 
-async function isAuthed(req: NextRequest) {
-  const token = req.cookies.get("psi_session")?.value;
+async function tokenValid(token: string | undefined, role?: string) {
   if (!token) return false;
   try {
-    await jwtVerify(token, secret);
+    const { payload } = await jwtVerify(token, secret);
+    if (role && payload.role !== role) return false;
     return true;
   } catch {
     return false;
@@ -24,9 +24,23 @@ async function isAuthed(req: NextRequest) {
 async function guardAdmin(req: NextRequest) {
   const { pathname } = req.nextUrl;
   if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
-    if (!(await isAuthed(req))) {
+    if (!(await tokenValid(req.cookies.get("psi_session")?.value))) {
       const url = req.nextUrl.clone();
       url.pathname = "/admin/login";
+      url.searchParams.set("from", pathname);
+      return NextResponse.redirect(url);
+    }
+  }
+  return null;
+}
+
+async function guardPatient(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+  const openRoutes = ["/paciente/login", "/paciente/cadastro"];
+  if (pathname.startsWith("/paciente") && !openRoutes.includes(pathname)) {
+    if (!(await tokenValid(req.cookies.get("psi_patient")?.value, "patient"))) {
+      const url = req.nextUrl.clone();
+      url.pathname = "/paciente/login";
       url.searchParams.set("from", pathname);
       return NextResponse.redirect(url);
     }
@@ -39,19 +53,14 @@ export async function middleware(req: NextRequest) {
   const adminHost = (process.env.ADMIN_HOST || "").toLowerCase().trim();
   const host = hostOf(req);
 
-  // Sem ADMIN_HOST configurado: comportamento padrão (admin no mesmo domínio).
   if (!adminHost) {
-    return (await guardAdmin(req)) ?? NextResponse.next();
+    return (await guardAdmin(req)) ?? (await guardPatient(req)) ?? NextResponse.next();
   }
 
-  const onAdminDomain = host === adminHost;
-
-  if (onAdminDomain) {
-    // Domínio do painel: tudo aponta para /admin. Site público fica indisponível aqui.
+  if (host === adminHost) {
     if (path === "/") {
-      // Rewrite não re-executa o middleware, então validamos o login aqui.
       const url = req.nextUrl.clone();
-      url.pathname = (await isAuthed(req)) ? "/admin" : "/admin/login";
+      url.pathname = (await tokenValid(req.cookies.get("psi_session")?.value)) ? "/admin" : "/admin/login";
       return NextResponse.rewrite(url);
     }
     if (!path.startsWith("/admin") && !path.startsWith("/api")) {
@@ -62,14 +71,13 @@ export async function middleware(req: NextRequest) {
     return (await guardAdmin(req)) ?? NextResponse.next();
   }
 
-  // Domínio público: /admin fica escondido (404). APIs continuam liberadas.
+  // Domínio público
   if (path.startsWith("/admin")) {
     return new NextResponse("Not Found", { status: 404 });
   }
-  return NextResponse.next();
+  return (await guardPatient(req)) ?? NextResponse.next();
 }
 
 export const config = {
-  // Roda em tudo, exceto assets estáticos do Next.
   matcher: ["/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml).*)"],
 };

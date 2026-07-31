@@ -1,11 +1,13 @@
 "use server";
 
 import { z } from "zod";
+import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { appointments } from "@/lib/db/schema";
+import { appointments, patients } from "@/lib/db/schema";
 import { isSlotAvailable, CLINIC_TZ } from "@/lib/availability";
 import { sendWhatsappText } from "@/lib/evolution";
 import { getSettings } from "@/lib/queries";
+import { getPatientSession } from "@/lib/patient-auth";
 
 const schema = z.object({
   name: z.string().min(2, "Informe seu nome").max(120),
@@ -50,11 +52,23 @@ export async function createAppointment(input: unknown): Promise<BookingResult> 
   const start = new Date(data.startISO);
   const end = avail.end;
 
+  // vincula ao cadastro do paciente: sessão logada, ou e-mail já cadastrado
+  const email = (data.email || "").trim().toLowerCase();
+  let patientId: string | null = null;
+  const session = await getPatientSession();
+  if (session) {
+    patientId = session.id;
+  } else if (email) {
+    const [p] = await db.select({ id: patients.id }).from(patients).where(eq(patients.email, email)).limit(1);
+    if (p) patientId = p.id;
+  }
+
   try {
     await db.insert(appointments).values({
+      patientId,
       name: data.name.trim(),
       phone: data.phone.trim(),
-      email: (data.email || "").trim(),
+      email,
       start,
       end,
       mode: data.mode,

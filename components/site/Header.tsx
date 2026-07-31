@@ -62,6 +62,9 @@ export default function Header({
         </nav>
 
         <div className="flex items-center gap-3">
+          <a href="/paciente" className="hidden text-sm text-graphite transition-colors hover:text-brand lg:inline">
+            Área do paciente
+          </a>
           <a href="/agendar" className="btn-primary hidden sm:inline-flex">
             <CalendarCheck className="h-4 w-4" />
             Agendar consulta
@@ -96,6 +99,13 @@ export default function Header({
                   {item.label}
                 </a>
               ))}
+              <a
+                href="/paciente"
+                onClick={() => setOpen(false)}
+                className="rounded-lg px-3 py-3 text-graphite hover:bg-ink/[0.03]"
+              >
+                Área do paciente
+              </a>
               <a href="/agendar" className="btn-primary mt-2 w-full">
                 <CalendarCheck className="h-4 w-4" />
                 Agendar consulta

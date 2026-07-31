@@ -160,6 +160,7 @@ export const appointments = pgTable(
   "appointments",
   {
     id: id(),
+    patientId: text("patient_id"), // vínculo opcional com o cadastro do paciente
     name: text("name").notNull(),
     phone: text("phone").notNull(),
     email: text("email").notNull().default(""),
@@ -171,7 +172,10 @@ export const appointments = pgTable(
     notes: text("notes").notNull().default(""),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
-  (t) => ({ startIdx: index("appointments_start_idx").on(t.start) })
+  (t) => ({
+    startIdx: index("appointments_start_idx").on(t.start),
+    patientIdx: index("appointments_patient_idx").on(t.patientId),
+  })
 );
 
 // ── Admin ─────────────────────────────────────────────────────
@@ -205,6 +209,57 @@ export const agentMessages = pgTable("agent_messages", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// ── Pacientes (cadastro + portal do paciente) ─────────────────
+export const patients = pgTable("patients", {
+  id: id(),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  phone: text("phone").notNull().default(""),
+  birthDate: text("birth_date").notNull().default(""), // "YYYY-MM-DD"
+  cpf: text("cpf").notNull().default(""),
+  address: text("address").notNull().default(""),
+  password: text("password"), // hash bcrypt; null = sem acesso ao portal ainda
+  notes: text("notes").notNull().default(""), // observações administrativas (só médico)
+  summary: text("summary").notNull().default(""), // resumo do caso, evolui no tempo (só médico)
+  active: boolean("active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// ── Sessões clínicas (prontuário) — confidencial, só o médico ──
+export const clinicalSessions = pgTable(
+  "clinical_sessions",
+  {
+    id: id(),
+    patientId: text("patient_id")
+      .notNull()
+      .references(() => patients.id, { onDelete: "cascade" }),
+    date: timestamp("date").notNull().defaultNow(),
+    title: text("title").notNull().default(""),
+    content: text("content").notNull().default(""),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => ({ patientIdx: index("clinical_sessions_patient_idx").on(t.patientId) })
+);
+
+// ── Mensagens médico ↔ paciente ───────────────────────────────
+export const patientMessages = pgTable(
+  "patient_messages",
+  {
+    id: id(),
+    patientId: text("patient_id")
+      .notNull()
+      .references(() => patients.id, { onDelete: "cascade" }),
+    sender: text("sender").notNull().default("doctor"), // doctor | patient
+    body: text("body").notNull(),
+    readByPatient: boolean("read_by_patient").notNull().default(false),
+    readByDoctor: boolean("read_by_doctor").notNull().default(false),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => ({ patientIdx: index("patient_messages_patient_idx").on(t.patientId) })
+);
+
 // tipos convenientes
 export type SiteSettings = typeof siteSettings.$inferSelect;
 export type Doctor = typeof doctor.$inferSelect;
@@ -212,3 +267,6 @@ export type Specialty = typeof specialties.$inferSelect;
 export type ClinicInfoRow = typeof clinicInfo.$inferSelect;
 export type Appointment = typeof appointments.$inferSelect;
 export type AgentConfigRow = typeof agentConfig.$inferSelect;
+export type Patient = typeof patients.$inferSelect;
+export type ClinicalSession = typeof clinicalSessions.$inferSelect;
+export type PatientMessage = typeof patientMessages.$inferSelect;

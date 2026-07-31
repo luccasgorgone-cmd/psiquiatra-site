@@ -101,6 +101,9 @@ export default function Footer({
               <CalendarCheck className="h-4 w-4" />
               Agendar consulta
             </a>
+            <a href="/paciente" className="mt-3 block text-sm text-graphite hover:text-brand">
+              Área do paciente →
+            </a>
           </div>
         </div>
 

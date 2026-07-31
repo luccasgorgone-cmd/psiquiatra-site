@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
   siteSettings,
@@ -16,6 +16,9 @@ import {
   appointments,
   agentConfig,
   adminUsers,
+  patients,
+  clinicalSessions,
+  patientMessages,
 } from "@/lib/db/schema";
 import { saveMedia, deleteMedia } from "@/lib/storage";
 import { getSession, hashPassword } from "@/lib/auth";
@@ -512,4 +515,170 @@ export async function deleteAdmin(fd: FormData): Promise<void> {
   if (all.length <= 1) return; // mantém ao menos um
   await db.delete(adminUsers).where(eq(adminUsers.id, id));
   revalidatePath("/admin/conta");
+}
+
+// ─── Pacientes ────────────────────────────────────────────────
+function refreshPatient(id: string) {
+  revalidatePath("/admin/pacientes");
+  revalidatePath(`/admin/pacientes/${id}`);
+}
+
+export async function createPatient(_p: State, fd: FormData): Promise<State> {
+  await guard();
+  const email = S(fd, "email").toLowerCase();
+  const name = S(fd, "name");
+  if (!name || !email) return fail("Informe nome e e-mail");
+  const exists = await db.select().from(patients).where(eq(patients.email, email));
+  if (exists.length) return fail("Já existe um paciente com esse e-mail");
+  const pass = S(fd, "password");
+  const values = {
+    name,
+    email,
+    phone: S(fd, "phone"),
+    birthDate: S(fd, "birthDate"),
+    cpf: S(fd, "cpf"),
+    address: S(fd, "address"),
+    notes: S(fd, "notes"),
+    password: pass.length >= 6 ? await hashPassword(pass) : null,
+  };
+  const [row] = await db.insert(patients).values(values).returning({ id: patients.id });
+  // vincula agendamentos existentes com o mesmo e-mail
+  await db.update(appointments).set({ patientId: row.id }).where(eq(appointments.email, email));
+  revalidatePath("/admin/pacientes");
+  return ok("Paciente criado");
+}
+
+export async function updatePatient(_p: State, fd: FormData): Promise<State> {
+  await guard();
+  const id = S(fd, "id");
+  await db
+    .update(patients)
+    .set({
+      name: S(fd, "name"),
+      phone: S(fd, "phone"),
+      birthDate: S(fd, "birthDate"),
+      cpf: S(fd, "cpf"),
+      address: S(fd, "address"),
+      updatedAt: new Date(),
+    })
+    .where(eq(patients.id, id));
+  refreshPatient(id);
+  return ok();
+}
+
+export async function updatePatientCase(_p: State, fd: FormData): Promise<State> {
+  await guard();
+  const id = S(fd, "id");
+  await db
+    .update(patients)
+    .set({ summary: S(fd, "summary"), notes: S(fd, "notes"), updatedAt: new Date() })
+    .where(eq(patients.id, id));
+  refreshPatient(id);
+  return ok("Resumo atualizado");
+}
+
+export async function setPatientPassword(_p: State, fd: FormData): Promise<State> {
+  await guard();
+  const id = S(fd, "id");
+  const pass = S(fd, "password");
+  if (pass.length < 6) return fail("A senha deve ter ao menos 6 caracteres");
+  await db
+    .update(patients)
+    .set({ password: await hashPassword(pass), active: true, updatedAt: new Date() })
+    .where(eq(patients.id, id));
+  refreshPatient(id);
+  return ok("Acesso do paciente definido");
+}
+
+export async function deletePatient(fd: FormData): Promise<void> {
+  await guard();
+  const id = S(fd, "id");
+  // desvincula agendamentos (mantém o histórico de consultas) e remove o cadastro
+  await db.update(appointments).set({ patientId: null }).where(eq(appointments.patientId, id));
+  await db.delete(patients).where(eq(patients.id, id));
+  revalidatePath("/admin/pacientes");
+}
+
+export async function linkAppointment(fd: FormData): Promise<void> {
+  await guard();
+  const apptId = S(fd, "appointmentId");
+  const patientId = S(fd, "patientId") || null;
+  await db.update(appointments).set({ patientId }).where(eq(appointments.id, apptId));
+  revalidatePath("/admin/consultas");
+  if (patientId) refreshPatient(patientId);
+}
+
+// ─── Sessões clínicas (prontuário) ────────────────────────────
+export async function createSession(_p: State, fd: FormData): Promise<State> {
+  await guard();
+  const patientId = S(fd, "patientId");
+  const content = S(fd, "content");
+  if (!patientId) return fail("Selecione um paciente");
+  if (!content) return fail("Escreva o conteúdo da sessão");
+  const dateStr = S(fd, "date");
+  const date = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?$/.test(dateStr)
+    ? new Date(`${dateStr.length === 10 ? dateStr + "T12:00" : dateStr}:00-03:00`)
+    : new Date();
+  await db.insert(clinicalSessions).values({
+    patientId,
+    date,
+    title: S(fd, "title"),
+    content,
+  });
+  refreshPatient(patientId);
+  revalidatePath("/admin/sessoes");
+  return ok("Sessão registrada");
+}
+
+export async function updateSession(_p: State, fd: FormData): Promise<State> {
+  await guard();
+  const id = S(fd, "id");
+  const patientId = S(fd, "patientId");
+  const dateStr = S(fd, "date");
+  const date = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?$/.test(dateStr)
+    ? new Date(`${dateStr.length === 10 ? dateStr + "T12:00" : dateStr}:00-03:00`)
+    : undefined;
+  await db
+    .update(clinicalSessions)
+    .set({
+      title: S(fd, "title"),
+      content: S(fd, "content"),
+      ...(date ? { date } : {}),
+      updatedAt: new Date(),
+    })
+    .where(eq(clinicalSessions.id, id));
+  refreshPatient(patientId);
+  revalidatePath("/admin/sessoes");
+  return ok();
+}
+
+export async function deleteSession(fd: FormData): Promise<void> {
+  await guard();
+  const id = S(fd, "id");
+  const patientId = S(fd, "patientId");
+  await db.delete(clinicalSessions).where(eq(clinicalSessions.id, id));
+  if (patientId) refreshPatient(patientId);
+  revalidatePath("/admin/sessoes");
+}
+
+// ─── Mensagens (médico → paciente) ────────────────────────────
+export async function sendDoctorMessage(_p: State, fd: FormData): Promise<State> {
+  await guard();
+  const patientId = S(fd, "patientId");
+  const body = S(fd, "body");
+  if (!patientId || !body) return fail("Mensagem vazia");
+  await db.insert(patientMessages).values({
+    patientId,
+    sender: "doctor",
+    body,
+    readByDoctor: true,
+    readByPatient: false,
+  });
+  // marca como lidas as mensagens do paciente ao responder
+  await db
+    .update(patientMessages)
+    .set({ readByDoctor: true })
+    .where(and(eq(patientMessages.patientId, patientId), eq(patientMessages.sender, "patient")));
+  refreshPatient(patientId);
+  return ok("Mensagem enviada");
 }
