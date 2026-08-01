@@ -89,6 +89,7 @@ export const specialties = pgTable("specialties", {
   id: id(),
   title: text("title").notNull(),
   description: text("description").notNull(),
+  symptoms: text("symptoms").notNull().default(""), // sinais comuns, um por linha
   icon: text("icon").notNull().default("brain"),
   order: integer("order").notNull().default(0),
   active: boolean("active").notNull().default(true),

@@ -201,20 +201,21 @@ export async function seed(opts?: { onlyIfEmpty?: boolean }) {
 
   // Especialidades
   const specs = [
-    ["Transtornos de ansiedade", "Preocupação excessiva, inquietação e dificuldade de concentração que impactam o dia a dia.", "wind"],
-    ["Depressão", "Perda de interesse, tristeza persistente e mudanças no sono e apetite — com tratamento e acolhimento.", "cloud-rain"],
-    ["Transtorno bipolar", "Oscilações de humor entre fases depressivas e de euforia, com acompanhamento contínuo.", "activity"],
-    ["Transtornos do sono", "Insônia e alterações do sono que afetam a energia, o humor e a saúde como um todo.", "moon"],
-    ["Síndrome do pânico", "Crises intensas de medo e sintomas físicos, tratadas com abordagem segura e gradual.", "heart-pulse"],
-    ["TDAH", "Dificuldade de atenção, impulsividade e organização — avaliação e manejo individualizado.", "zap"],
-    ["Estresse e burnout", "Esgotamento físico e mental ligado ao trabalho e à rotina, com estratégias de cuidado.", "battery-low"],
-    ["Psiquiatria integrativa", "Tratamento convencional combinado a práticas complementares, quando indicado.", "leaf"],
+    ["Transtornos de ansiedade", "Preocupação excessiva, inquietação e dificuldade de concentração que impactam o dia a dia. O tratamento combina abordagem baseada em evidências e um plano ajustado à sua rotina.", "wind", "Preocupação constante\nTensão muscular\nDificuldade de concentração\nIrritabilidade\nInsônia"],
+    ["Depressão", "Perda de interesse, tristeza persistente e mudanças no sono e apetite. Com acompanhamento próximo e acolhimento, é possível recuperar a qualidade de vida.", "cloud-rain", "Tristeza persistente\nDesânimo e cansaço\nPerda de prazer\nAlterações no sono\nSentimento de culpa"],
+    ["Transtorno bipolar", "Oscilações de humor entre fases depressivas e de euforia, com acompanhamento contínuo para estabilidade e prevenção de recaídas.", "activity", "Oscilações de humor\nFases de euforia\nImpulsividade\nAlterações de energia\nMudanças no sono"],
+    ["Transtornos do sono", "Insônia e alterações do sono que afetam a energia, o humor e a saúde como um todo, com investigação cuidadosa das causas.", "moon", "Dificuldade para dormir\nDespertares noturnos\nSono não reparador\nCansaço diurno\nSonolência excessiva"],
+    ["Síndrome do pânico", "Crises intensas de medo e sintomas físicos, tratadas com abordagem segura e gradual para retomar o controle.", "heart-pulse", "Crises de medo intenso\nPalpitações\nFalta de ar\nMedo de perder o controle\nEvitação de lugares"],
+    ["TDAH", "Dificuldade de atenção, impulsividade e organização — avaliação criteriosa e manejo individualizado para adultos e adolescentes.", "zap", "Desatenção\nInquietação\nImpulsividade\nDesorganização\nEsquecimentos frequentes"],
+    ["Estresse e burnout", "Esgotamento físico e mental ligado ao trabalho e à rotina, com estratégias de cuidado e prevenção.", "battery-low", "Esgotamento\nIrritabilidade\nDificuldade de concentração\nDesmotivação\nSintomas físicos"],
+    ["Psiquiatria integrativa", "Tratamento convencional combinado a práticas complementares baseadas em evidências, quando indicado, para um cuidado completo.", "leaf", "Abordagem individualizada\nCuidado integral\nFoco em qualidade de vida"],
   ];
   await db.insert(schema.specialties).values(
-    specs.map(([title, description, icon], i) => ({
+    specs.map(([title, description, icon, symptoms], i) => ({
       title,
       description,
       icon,
+      symptoms,
       order: i,
     }))
   );

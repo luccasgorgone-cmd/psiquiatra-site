@@ -1,0 +1,1 @@
+ALTER TABLE "specialties" ADD COLUMN "symptoms" text DEFAULT '' NOT NULL;

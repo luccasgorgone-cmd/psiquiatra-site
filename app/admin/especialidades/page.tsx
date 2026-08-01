@@ -42,6 +42,9 @@ export default async function EspecialidadesPage() {
           <Field label="Descrição">
             <textarea name="description" className="fld min-h-[80px]" />
           </Field>
+          <Field label="Sinais comuns" hint="Um por linha — aparecem como chips no site">
+            <textarea name="symptoms" className="fld min-h-[80px]" placeholder={"Ex.:\nPreocupação constante\nTensão muscular"} />
+          </Field>
         </ActionForm>
       </Card>
 
@@ -68,6 +71,9 @@ export default async function EspecialidadesPage() {
             </Grid2>
             <Field label="Descrição">
               <textarea name="description" defaultValue={sp.description} className="fld min-h-[80px]" />
+            </Field>
+            <Field label="Sinais comuns" hint="Um por linha">
+              <textarea name="symptoms" defaultValue={sp.symptoms} className="fld min-h-[80px]" />
             </Field>
           </ActionForm>
         </Card>

@@ -7,7 +7,7 @@ import Icon from "./Icon";
 import Reveal from "@/components/Reveal";
 import RichText from "@/components/RichText";
 
-type Spec = { id: string; title: string; description: string; icon: string };
+type Spec = { id: string; title: string; description: string; icon: string; symptoms: string };
 
 export default function Specialties({ items }: { items: Spec[] }) {
   const [openId, setOpenId] = useState<string | null>(items[0]?.id ?? null);
@@ -66,10 +66,33 @@ export default function Specialties({ items }: { items: Spec[] }) {
                         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                         className="overflow-hidden"
                       >
-                        <RichText
-                          text={s.description}
-                          className="pl-16 pr-2 pt-4 text-sm leading-relaxed text-muted"
-                        />
+                        <div className="pl-16 pr-2 pt-4">
+                          <RichText
+                            text={s.description}
+                            className="text-sm leading-relaxed text-muted"
+                          />
+                          {s.symptoms.trim() && (
+                            <div className="mt-4">
+                              <p className="mb-2 text-xs font-medium uppercase tracking-wider text-brand">
+                                Sinais comuns
+                              </p>
+                              <div className="flex flex-wrap gap-2">
+                                {s.symptoms
+                                  .split("\n")
+                                  .map((x) => x.trim())
+                                  .filter(Boolean)
+                                  .map((sym) => (
+                                    <span
+                                      key={sym}
+                                      className="rounded-full border border-ink/[0.08] bg-sand/50 px-3 py-1 text-xs text-graphite"
+                                    >
+                                      {sym}
+                                    </span>
+                                  ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </motion.div>
                     )}
                   </AnimatePresence>

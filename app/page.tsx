@@ -46,11 +46,6 @@ export default async function Home() {
     ? whatsappLink(s.whatsapp, "Olá! Gostaria de agendar uma consulta.")
     : "#";
 
-  const clinicPhotos = clinic.photos.map((p) => ({
-    url: mediaUrl(p.mediaId)!,
-    caption: p.caption,
-  }));
-
   const quickReplies = ((agent?.faq as { q: string }[]) || []).slice(0, 4).map((f) => f.q);
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
@@ -104,12 +99,7 @@ export default async function Home() {
         )}
 
         {doctor?.approach && (
-          <Approach
-            approach={doctor.approach}
-            imageUrl={mediaUrl(s.approachImageId)}
-            doctorName={doctor.name}
-            title={doctor.title}
-          />
+          <Approach approach={doctor.approach} doctorName={doctor.name} title={doctor.title} />
         )}
 
         {credentials.length > 0 && <Credentials items={credentials} />}
@@ -120,8 +110,6 @@ export default async function Home() {
             description={clinic.info.description}
             amenities={(clinic.info.amenities as string[]) || []}
             hours={clinic.info.hours}
-            imageUrl={mediaUrl(s.clinicImageId)}
-            photos={clinicPhotos}
           />
         )}
 

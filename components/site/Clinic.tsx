@@ -1,91 +1,109 @@
-import Reveal from "@/components/Reveal";
-import ParallaxImage from "@/components/ParallaxImage";
-import RichText from "@/components/RichText";
-import { Check, Clock } from "lucide-react";
+"use client";
+
+import { motion, useReducedMotion } from "framer-motion";
+import {
+  Clock, Check, MapPin, ShieldCheck, Video, DoorClosed, Car, Accessibility, HeartHandshake,
+  type LucideProps,
+} from "lucide-react";
+
+const ease = [0.22, 1, 0.36, 1] as const;
+
+function iconFor(text: string): React.ComponentType<LucideProps> {
+  const t = text.toLowerCase();
+  if (/(acesso|localiz|central|estaci)/.test(t)) return /estaci/.test(t) ? Car : MapPin;
+  if (/(elevador|acessib|rampa)/.test(t)) return Accessibility;
+  if (/(reservad|silenci|privaci|discret)/.test(t)) return DoorClosed;
+  if (/(online|presencial|teleconsulta|v[ií]deo)/.test(t)) return Video;
+  if (/(sigilo|confidenc|seguran)/.test(t)) return ShieldCheck;
+  if (/(conforto|acolh|bem-estar)/.test(t)) return HeartHandshake;
+  return Check;
+}
 
 export default function Clinic({
   title,
   description,
   amenities,
   hours,
-  imageUrl,
-  photos,
 }: {
   title: string;
   description: string;
   amenities: string[];
   hours: string;
-  imageUrl: string | null;
-  photos: { url: string; caption: string }[];
 }) {
+  const reduce = useReducedMotion();
+
   return (
     <section id="clinica" className="relative overflow-hidden bg-sand/60 py-24 sm:py-32">
-      <div className="container-x grid items-center gap-14 lg:grid-cols-2">
-        {imageUrl && (
-          <Reveal className="relative">
-            <div className="absolute -left-4 -top-4 hidden h-28 w-28 rounded-tl-[2rem] border-l-2 border-t-2 border-warm/50 sm:block" />
-            <ParallaxImage
-              src={imageUrl}
-              alt="Consultório"
-              className="aspect-[4/5] w-full shadow-lift"
-              amount={44}
-            />
-            <div className="absolute -bottom-5 -right-5 rounded-2xl bg-brand px-5 py-4 text-ivory shadow-lift">
-              <div className="flex items-center gap-2 text-sm">
-                <Clock className="h-4 w-4" />
-                {hours}
-              </div>
-            </div>
-          </Reveal>
-        )}
+      <div className="pointer-events-none absolute -left-32 top-1/3 h-96 w-96 rounded-full bg-brand/[0.07] blur-3xl" />
+      <div className="pointer-events-none absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-warm/10 blur-3xl" />
 
+      <div className="container-x relative grid items-center gap-14 lg:grid-cols-2">
         <div>
-          <Reveal>
-            <p className="kicker eyebrow-line">A Clínica</p>
-            <h2 className="mt-5 max-w-lg text-3xl font-light leading-tight text-ink sm:text-4xl">
-              {title}
-            </h2>
-            <RichText text={description} className="mt-6 max-w-xl text-lg leading-relaxed text-muted" />
-          </Reveal>
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, ease }}
+            className="kicker eyebrow-line"
+          >
+            A Clínica
+          </motion.p>
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.7, ease }}
+            className="mt-5 max-w-lg text-3xl font-light leading-tight text-ink sm:text-4xl"
+          >
+            {title}
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.7, delay: 0.05, ease }}
+            className="mt-6 max-w-xl whitespace-pre-line text-lg leading-relaxed text-muted"
+          >
+            {description}
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.15, ease }}
+            className="mt-7 inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm text-ivory shadow-soft"
+          >
+            <Clock className="h-4 w-4" />
+            {hours}
+          </motion.div>
+        </div>
 
-          <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {amenities.map((a, i) => (
-              <Reveal
+        {/* Comodidades com ícones animados */}
+        <div className="grid gap-4 sm:grid-cols-2">
+          {amenities.map((a, i) => {
+            const Icon = iconFor(a);
+            return (
+              <motion.div
                 key={a}
-                delay={i * 0.06}
-                className="flex items-center gap-3 rounded-xl border border-ink/[0.06] bg-white/70 px-4 py-3 text-sm text-graphite"
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ duration: 0.6, delay: (i % 2) * 0.08 + Math.floor(i / 2) * 0.06, ease }}
+                className="group flex items-start gap-4 rounded-xl2 border border-ink/[0.06] bg-white/70 p-5 backdrop-blur-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-lift"
               >
-                <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-warm/15 text-warm">
-                  <Check className="h-4 w-4" />
-                </span>
-                {a}
-              </Reveal>
-            ))}
-          </div>
+                <motion.span
+                  animate={reduce ? undefined : { y: [0, -4, 0] }}
+                  transition={{ duration: 3.4 + i * 0.25, repeat: Infinity, ease: "easeInOut" }}
+                  className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-warm/15 text-warm transition-colors group-hover:bg-warm group-hover:text-ivory"
+                >
+                  <Icon className="h-5 w-5" />
+                </motion.span>
+                <p className="pt-1.5 text-sm leading-relaxed text-graphite">{a}</p>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
-
-      {photos.length > 0 && (
-        <div className="container-x mt-14 grid gap-4 sm:grid-cols-3">
-          {photos.map((p, i) => (
-            <Reveal key={i} delay={i * 0.08} className="group overflow-hidden rounded-xl2 shadow-soft">
-              <div className="relative aspect-[4/3] overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={p.url}
-                  alt={p.caption}
-                  className="h-full w-full object-cover transition-transform duration-700 ease-smooth group-hover:scale-105"
-                />
-                {p.caption && (
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/60 to-transparent p-4">
-                    <span className="text-sm font-medium text-ivory">{p.caption}</span>
-                  </div>
-                )}
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      )}
     </section>
   );
 }

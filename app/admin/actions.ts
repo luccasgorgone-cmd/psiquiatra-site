@@ -195,6 +195,7 @@ export async function createSpecialty(_p: State, fd: FormData): Promise<State> {
   await db.insert(specialties).values({
     title,
     description: S(fd, "description"),
+    symptoms: S(fd, "symptoms"),
     icon: S(fd, "icon") || "brain",
     order: count,
   });
@@ -210,6 +211,7 @@ export async function updateSpecialty(_p: State, fd: FormData): Promise<State> {
     .set({
       title: S(fd, "title"),
       description: S(fd, "description"),
+      symptoms: S(fd, "symptoms"),
       icon: S(fd, "icon") || "brain",
     })
     .where(eq(specialties.id, id));

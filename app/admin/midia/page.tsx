@@ -9,8 +9,6 @@ import {
   uploadFavicon,
   uploadHero,
   uploadDoctorPhoto,
-  uploadClinicImage,
-  uploadApproachImage,
   uploadLocationImage,
   addClinicPhoto,
   deleteClinicPhoto,
@@ -93,40 +91,16 @@ export default async function MidiaPage() {
         </ActionForm>
       </Card>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card title="Destaque — Abordagem" description="Foto grande na faixa 'A abordagem'">
-          <div className="mb-4">
-            <Preview url={mediaUrl(s?.approachImageId)} ratio="aspect-[4/5]" />
-          </div>
-          <ActionForm action={uploadApproachImage} submitLabel="Enviar">
-            <Field label="Arquivo" hint={hint}>
-              <input type="file" name="file" accept="image/*" className="fld" />
-            </Field>
-          </ActionForm>
-        </Card>
-
-        <Card title="Destaque — A Clínica" description="Foto grande na seção 'A Clínica'">
-          <div className="mb-4">
-            <Preview url={mediaUrl(s?.clinicImageId)} ratio="aspect-[4/5]" />
-          </div>
-          <ActionForm action={uploadClinicImage} submitLabel="Enviar">
-            <Field label="Arquivo" hint={hint}>
-              <input type="file" name="file" accept="image/*" className="fld" />
-            </Field>
-          </ActionForm>
-        </Card>
-
-        <Card title="Localização — Fachada" description="Foto ao lado do mapa">
-          <div className="mb-4">
-            <Preview url={mediaUrl(s?.locationImageId)} ratio="aspect-[4/3]" />
-          </div>
-          <ActionForm action={uploadLocationImage} submitLabel="Enviar">
-            <Field label="Arquivo" hint={hint}>
-              <input type="file" name="file" accept="image/*" className="fld" />
-            </Field>
-          </ActionForm>
-        </Card>
-      </div>
+      <Card title="Localização — Fachada" description="Foto do prédio, exibida ao lado do mapa na seção Localização">
+        <div className="mb-4 max-w-[320px]">
+          <Preview url={mediaUrl(s?.locationImageId)} ratio="aspect-[4/3]" />
+        </div>
+        <ActionForm action={uploadLocationImage} submitLabel="Enviar imagem">
+          <Field label="Arquivo" hint={hint}>
+            <input type="file" name="file" accept="image/*" className="fld" />
+          </Field>
+        </ActionForm>
+      </Card>
 
       <Card title="Galeria da clínica (opcional)">
         {photos.length > 0 && (
