@@ -5,11 +5,9 @@ import bcrypt from "bcryptjs";
 import { db } from "./db";
 import { patients } from "./db/schema";
 import { eq } from "drizzle-orm";
+import { authSecret as secret, PATIENT_AUDIENCE } from "./auth-secret";
 
 const COOKIE = "psi_patient";
-const secret = new TextEncoder().encode(
-  process.env.AUTH_SECRET || "dev-secret-change-me"
-);
 
 export type PatientSession = { id: string; name: string; email: string };
 
@@ -17,6 +15,7 @@ export async function createPatientSession(p: PatientSession) {
   const token = await new SignJWT({ ...p, role: "patient" })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
+    .setAudience(PATIENT_AUDIENCE)
     .setExpirationTime("30d")
     .sign(secret);
   const store = await cookies();
@@ -39,7 +38,7 @@ export async function getPatientSession(): Promise<PatientSession | null> {
   const token = store.get(COOKIE)?.value;
   if (!token) return null;
   try {
-    const { payload } = await jwtVerify(token, secret);
+    const { payload } = await jwtVerify(token, secret, { audience: PATIENT_AUDIENCE });
     if (payload.role !== "patient") return null;
     return { id: payload.id as string, name: payload.name as string, email: payload.email as string };
   } catch {

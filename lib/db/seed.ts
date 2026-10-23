@@ -305,20 +305,42 @@ export async function seed(opts?: { onlyIfEmpty?: boolean }) {
     })
     .onConflictDoUpdate({ target: schema.agentConfig.id, set: { updatedAt: new Date() } });
 
-  // Admin inicial
-  const email = (process.env.ADMIN_EMAIL || "GDelnery123").toLowerCase();
-  const pass = process.env.ADMIN_PASSWORD || "GDenery321";
+  // Admin inicial.
+  // Produção NUNCA cria um admin de senha conhecida automaticamente:
+  //  - Se ADMIN_EMAIL + ADMIN_PASSWORD estiverem definidos, cria/atualiza esse admin.
+  //  - Caso contrário, só cria um admin padrão de desenvolvimento quando
+  //    SEED_DEFAULT_ADMIN="true" (flag explícita, desligada por padrão).
+  const envEmail = process.env.ADMIN_EMAIL?.toLowerCase();
+  const envPass = process.env.ADMIN_PASSWORD;
   const name = process.env.ADMIN_NAME || "Dr. Guilherme Cazerta Delnery";
-  const hash = await bcrypt.hash(pass, 10);
-  await db
-    .insert(schema.adminUsers)
-    .values({ email, name, password: hash })
-    .onConflictDoUpdate({
-      target: schema.adminUsers.email,
-      set: { password: hash, name },
-    });
 
-  console.log(`✔ Seed concluído. Admin: ${email}`);
+  let email: string | undefined;
+  let pass: string | undefined;
+  if (envEmail && envPass) {
+    email = envEmail;
+    pass = envPass;
+  } else if (process.env.SEED_DEFAULT_ADMIN === "true") {
+    // Somente para desenvolvimento local — jamais habilite em produção.
+    email = "gdelnery123";
+    pass = "GDenery321";
+  }
+
+  if (email && pass) {
+    const hash = await bcrypt.hash(pass, 10);
+    await db
+      .insert(schema.adminUsers)
+      .values({ email, name, password: hash })
+      .onConflictDoUpdate({
+        target: schema.adminUsers.email,
+        set: { password: hash, name },
+      });
+    console.log(`✔ Seed concluído. Admin: ${email}`);
+  } else {
+    console.log(
+      "✔ Seed concluído. Admin NÃO criado: defina ADMIN_EMAIL e ADMIN_PASSWORD " +
+        "(ou SEED_DEFAULT_ADMIN=true apenas em desenvolvimento)."
+    );
+  }
   await pool.end();
   return { seeded: true };
 }

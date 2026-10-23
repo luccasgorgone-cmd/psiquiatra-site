@@ -5,18 +5,17 @@ import bcrypt from "bcryptjs";
 import { db } from "./db";
 import { adminUsers } from "./db/schema";
 import { eq } from "drizzle-orm";
+import { authSecret as secret, ADMIN_AUDIENCE } from "./auth-secret";
 
 const COOKIE = "psi_session";
-const secret = new TextEncoder().encode(
-  process.env.AUTH_SECRET || "dev-secret-change-me"
-);
 
 export type SessionUser = { id: string; email: string; name: string };
 
 export async function createSession(user: SessionUser) {
-  const token = await new SignJWT({ ...user })
+  const token = await new SignJWT({ ...user, role: "admin" })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
+    .setAudience(ADMIN_AUDIENCE)
     .setExpirationTime("7d")
     .sign(secret);
 
@@ -40,7 +39,8 @@ export async function getSession(): Promise<SessionUser | null> {
   const token = store.get(COOKIE)?.value;
   if (!token) return null;
   try {
-    const { payload } = await jwtVerify(token, secret);
+    const { payload } = await jwtVerify(token, secret, { audience: ADMIN_AUDIENCE });
+    if (payload.role !== "admin") return null;
     return { id: payload.id as string, email: payload.email as string, name: payload.name as string };
   } catch {
     return null;
@@ -63,10 +63,11 @@ export async function hashPassword(password: string) {
   return bcrypt.hash(password, 10);
 }
 
-/** Verifica JWT em contexto edge (middleware) — só valida assinatura */
+/** Verifica um JWT de admin (assinatura + audiência + role). */
 export async function verifyToken(token: string) {
   try {
-    const { payload } = await jwtVerify(token, secret);
+    const { payload } = await jwtVerify(token, secret, { audience: ADMIN_AUDIENCE });
+    if (payload.role !== "admin") return null;
     return payload;
   } catch {
     return null;
